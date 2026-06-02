@@ -26,29 +26,33 @@ async function createUser() {
         username: newUser.value.username,
         password: newUser.value.password
     }
-
-    let url = "http://localhost:8000/users"
-
-    const response = await fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type":"application/json",
-        },
-        body: JSON.stringify(requestBody)
-    })
-
-    if (!response.ok) {
+    
+    try {
+        let url = "http://localhost:8000/users"
+    
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type":"application/json",
+            },
+            body: JSON.stringify(requestBody)
+        })
+    
+        if (!response.ok) {
+            throw new Error("something went wrong")
+        }
+        
+        alert("create user successful")
+    
+        newUser.value = {
+            email: "",
+            username: "",
+            password: "",
+            confirmPassword: "",
+        }
+    } catch (error) {
         alert("create user failed")
         return
-    }
-
-    alert("create user successful")
-
-    newUser.value = {
-        email: "",
-        username: "",
-        password: "",
-        confirmPassword: "",
     }
 }
 
