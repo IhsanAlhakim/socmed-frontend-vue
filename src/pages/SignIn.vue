@@ -21,24 +21,26 @@ async function signIn(){
         password: signInUser.value.password
     }
 
-    console.log(requestBody)
-
-    let url = "http://localhost:8000/sessions"
-
-    const response = await fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type":"application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify(requestBody)
-    })
-
-    if (!response.ok) {
+    try {
+        let url = "http://localhost:8000/sessions"
+    
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type":"application/json"
+            },
+            credentials: "include",
+            body: JSON.stringify(requestBody)
+        })
+    
+        if (!response.ok) {
+            throw new Error("something went wrong")
+        }
+        router.push("/home")
+    } catch (error) {
         alert("sign in failed")
         return
     }
-    router.push("/home")
 }
 
 </script>
