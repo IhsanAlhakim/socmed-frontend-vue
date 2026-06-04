@@ -45,11 +45,53 @@ async function signOut() {
     }
 }
 
+const postContent: Ref<string> = ref("")
+
+interface CreatePostRequestBody {
+    content: string
+}
+
+async function createPost() {
+    let requestBody: CreatePostRequestBody = {
+        content: postContent.value
+    }
+
+    try {
+        let url = "http://localhost:8000/posts"
+    
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type":"application/json"
+            },
+            credentials: "include",
+            body: JSON.stringify(requestBody)
+        })
+    
+        if (!response.ok) {
+            throw new Error("something went wrong")
+        }
+        alert("post created")
+        postContent.value = ""
+    } catch (error) {
+        console.log(error)
+        alert("create post failed")
+    }
+}
+
 </script>
 <template>
     <aside>
         <p>Hello {{ userData.username }}</p>
         <button @click="signOut">Logout</button>
     </aside>
-    <main>Home</main>
+    <br>
+    <main>
+        <form @submit.prevent="createPost">
+            <div>
+                <textarea rows="5" cols="30" v-model="postContent"></textarea>
+            </div>
+            <button>Post</button>
+        </form>
+    </main>
 </template>
