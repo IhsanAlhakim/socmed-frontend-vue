@@ -17,10 +17,39 @@ if (!userDataObjStr) {
 
 const userData: Ref<UserData> = ref(userDataObj)
 
+async function signOut() {
+    if (!confirm("are you sure you want to sign out?") === true) {
+        return
+    }
+
+    try {
+        const url = "http://localhost:8000/sessions"
+
+        const response = await fetch(url, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+        })
+
+        if (!response.ok) {
+            throw new Error("something went wrong")
+        }
+
+        router.push("/")
+
+    } catch (error) {
+        console.log(error)
+        alert("signout failed")
+    }
+}
+
 </script>
 <template>
     <aside>
         <p>Hello {{ userData.username }}</p>
+        <button @click="signOut">Logout</button>
     </aside>
     <main>Home</main>
 </template>
