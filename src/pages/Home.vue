@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Post } from '@/types/post';
+import type { APIResponse } from '@/types/responseJson';
 import type { UserData } from '@/types/user';
 import { ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -79,6 +81,33 @@ async function createPost() {
     }
 }
 
+const posts: Ref<Post[] | null> = ref(null)
+
+async function getPosts() {
+    try {
+        let url = "http://localhost:8000/posts"
+    
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type":"application/json"
+            },
+            credentials: "include",
+        })
+    
+        if (!response.ok) {
+            throw new Error("something went wrong")
+        }   
+        
+        const responseJson: APIResponse = await response.json()
+        posts.value = responseJson.data
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+getPosts()
+
 </script>
 <template>
     <aside>
@@ -87,11 +116,20 @@ async function createPost() {
     </aside>
     <br>
     <main>
-        <form @submit.prevent="createPost">
-            <div>
-                <textarea rows="5" cols="30" v-model="postContent"></textarea>
+        <section>
+            <form @submit.prevent="createPost">
+                <div>
+                    <textarea rows="5" cols="30" v-model="postContent"></textarea>
+                </div>
+                <button>Post</button>
+            </form>
+        </section>
+        <section>
+            <div v-for="post in posts" :key="post.id">
+                <p>{{ post.id }}</p>
+                <p>{{ post.creator }}</p>
+                <p>{{ post.content }}</p>
             </div>
-            <button>Post</button>
-        </form>
+        </section>
     </main>
 </template>
