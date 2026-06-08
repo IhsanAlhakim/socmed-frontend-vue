@@ -4,4 +4,5 @@ export interface Post {
     creator: string,
     content: string,
     created_at: string
+    liked: boolean
 }
