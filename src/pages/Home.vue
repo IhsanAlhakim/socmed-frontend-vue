@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PostItem from '@/components/home/PostItem.vue';
 import type { Post } from '@/types/post';
 import type { APIResponse } from '@/types/responseJson';
 import type { UserData } from '@/types/user';
@@ -119,17 +120,13 @@ getPosts()
         <section>
             <form @submit.prevent="createPost">
                 <div>
-                    <textarea rows="5" cols="30" v-model="postContent"></textarea>
+                    <textarea rows="5" cols="30" v-model="postContent" class="border-2"></textarea>
                 </div>
-                <button>Post</button>
+                <button class="border-2 cursor-pointer">Post</button>
             </form>
         </section>
         <section>
-            <div v-for="post in posts" :key="post.id">
-                <p>{{ post.id }}</p>
-                <p>{{ post.creator }}</p>
-                <p>{{ post.content }}</p>
-            </div>
+            <PostItem v-for="post in posts" :key="post.id" :post="post"/>
         </section>
     </main>
 </template>
