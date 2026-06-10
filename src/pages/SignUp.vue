@@ -59,7 +59,7 @@ async function createUser() {
 </script>
 
 <template>
-    <RouterLink to="/">Back</RouterLink>
+    <RouterLink to="/signin">Back</RouterLink>
     <h2>Sign Up</h2>
     <form @submit.prevent="createUser">
         <div>
@@ -80,5 +80,5 @@ async function createUser() {
         </div>
     <button>Sign Up</button>
     </form>
-    <RouterLink to="/">Already have an account</RouterLink>
+    <RouterLink to="/signin">Already have an account</RouterLink>
 </template>
