@@ -2,51 +2,7 @@
 import PostItem from '@/components/home/PostItem.vue';
 import type { Post } from '@/types/post';
 import type { APIResponse } from '@/types/responseJson';
-import type { UserData } from '@/types/user';
 import { ref, type Ref } from 'vue';
-import { useRouter } from 'vue-router';
-
-const router = useRouter()
-
-let userDataObjStr = localStorage.getItem("userObj")
-
-let userDataObj
-
-if (!userDataObjStr) {
-    router.push("/")
-} else {
-    userDataObj = JSON.parse(userDataObjStr)
-}
-
-const userData: Ref<UserData> = ref(userDataObj)
-
-async function signOut() {
-    if (!confirm("are you sure you want to sign out?") === true) {
-        return
-    }
-
-    try {
-        const url = "http://localhost:8000/sessions"
-
-        const response = await fetch(url, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-        })
-
-        if (!response.ok) {
-            throw new Error("something went wrong")
-        }
-
-        router.push("/")
-
-    } catch (error) {
-        console.log(error)
-        alert("signout failed")
-    }
-}
 
 const postContent: Ref<string> = ref("")
 
@@ -61,16 +17,16 @@ async function createPost() {
 
     try {
         let url = "http://localhost:8000/posts"
-    
+
         const response = await fetch(url, {
             method: "POST",
             headers: {
-                "Content-Type":"application/json"
+                "Content-Type": "application/json"
             },
             credentials: "include",
             body: JSON.stringify(requestBody)
         })
-    
+
         if (!response.ok) {
             throw new Error("something went wrong")
         }
@@ -87,19 +43,19 @@ const posts: Ref<Post[] | null> = ref(null)
 async function getPosts() {
     try {
         let url = "http://localhost:8000/posts"
-    
+
         const response = await fetch(url, {
             method: "GET",
             headers: {
-                "Content-Type":"application/json"
+                "Content-Type": "application/json"
             },
             credentials: "include",
         })
-    
+
         if (!response.ok) {
             throw new Error("something went wrong")
-        }   
-        
+        }
+
         const responseJson: APIResponse = await response.json()
         posts.value = responseJson.data
     } catch (error) {
@@ -111,22 +67,15 @@ getPosts()
 
 </script>
 <template>
-    <aside>
-        <p>Hello {{ userData.username }}</p>
-        <button @click="signOut">Logout</button>
-    </aside>
-    <br>
-    <main>
-        <section>
-            <form @submit.prevent="createPost">
-                <div>
-                    <textarea rows="5" cols="30" v-model="postContent" class="border-2"></textarea>
-                </div>
-                <button class="border-2 cursor-pointer">Post</button>
-            </form>
-        </section>
-        <section>
-            <PostItem v-for="post in posts" :key="post.id" :post="post"/>
-        </section>
-    </main>
+    <section>
+        <form @submit.prevent="createPost">
+            <div>
+                <textarea rows="5" cols="30" v-model="postContent" class="border-2"></textarea>
+            </div>
+            <button class="border-2 cursor-pointer">Post</button>
+        </form>
+    </section>
+    <section>
+        <PostItem v-for="post in posts" :key="post.id" :post="post" />
+    </section>
 </template>
