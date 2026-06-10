@@ -1,3 +1,4 @@
+import RootLayout from "@/layouts/RootLayout.vue"
 import Home from "@/pages/Home.vue"
 import SignIn from "@/pages/SignIn.vue"
 import SignUp from "@/pages/SignUp.vue"
@@ -5,11 +6,14 @@ import type { APIResponse } from "@/types/responseJson"
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router"
 
 const routes: RouteRecordRaw[] = [
-    {path: "/", component: SignIn},
+    {path: "/signin", component: SignIn},
     {path: "/signup", component: SignUp},
     {
-        path: "/home", 
-        component: Home,
+        path: "/", 
+        component: RootLayout,
+        children: [
+            {path: "home", component: Home}
+        ],
         beforeEnter: async (to, from) => {
             try {
                 let url = "http://localhost:8000/users"
@@ -33,7 +37,7 @@ const routes: RouteRecordRaw[] = [
             } catch (error) {
                 console.log("something went wrong")
                 localStorage.removeItem("userObj")
-                return {path: "/"}
+                return {path: "/signin"}
             }
 
         }
