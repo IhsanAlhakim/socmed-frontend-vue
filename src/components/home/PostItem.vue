@@ -59,7 +59,7 @@ async function unLikePost() {
 </script>
 <template>
         <div class="mb-4 cursor-pointer" @click="router.push({ path: `/p/${post.id}` })">
-            <p>{{ post.creator }}</p> 
+            <p @click.stop="router.push({path: `/u/${post.creator}`})">{{ post.creator }}</p> 
             <p>{{ post.content }}</p>
             <div>
                 <button v-if="postLikes" class="border-2 cursor-pointer" @click.stop="unLikePost">liked</button>

@@ -2,12 +2,13 @@
 import type { Post } from '@/types/post';
 import type { APIResponse } from '@/types/responseJson';
 import { ref, type Ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
     postId: String,
 })
 
-console.log(props.postId)
+const router = useRouter()
 
 const post: Ref<Post | null> = ref(null)
 
@@ -39,7 +40,7 @@ getPost()
 <template>
     <RouterLink to="/home">Back</RouterLink>
     <div class="mb-4">
-        <p>{{ post?.creator }}</p>
+        <p @click="router.push(`/u/${post?.creator}`)" class="cursor-pointer">{{ post?.creator }}</p>
         <p>{{ post?.created_at }}</p>
         <p>{{ post?.content }}</p>
     </div>
