@@ -4,3 +4,9 @@ export interface UserData {
     email: string,
     created_at: string
 }
+
+export interface OtherUserData {
+    id: number,
+    username: string,
+    created_at: string
+}
