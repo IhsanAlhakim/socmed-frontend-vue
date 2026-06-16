@@ -1,19 +1,23 @@
 <script setup lang="ts">
+import PostItem from '@/components/home/PostItem.vue'
+import type { Post } from '@/types/post'
 import type { APIResponse } from '@/types/responseJson'
-import type { OtherUserData } from '@/types/user'
+import type { UserData } from '@/types/user'
 import { ref, type Ref } from 'vue'
 
 const props = defineProps({
     username: String,
 })
 
-const user: Ref<OtherUserData | null> = ref(null)
+const user: Ref<UserData | null> = ref(null)
+const posts: Ref<Post[] | null> = ref(null)
 
-async function getOtherUser() {
+async function getUserDataAndPost() {
     try {
-        let url = `http://localhost:8000/users/${props.username}`
+        const usersDataApiUrl = `http://localhost:8000/users/${props.username}`
+        const postsDataApiUrl = `http://localhost:8000/users/${props.username}/posts`
 
-        const response = await fetch(url, {
+        const usersFetch = fetch(usersDataApiUrl, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
@@ -21,23 +25,43 @@ async function getOtherUser() {
             credentials: "include",
         })
 
-        if (!response.ok) {
+        const postsFetch = fetch(postsDataApiUrl, {
+            method: "GET",
+            headers: {
+                "Content-Type":"application/json"
+            },
+            credentials: "include",
+        })
+
+        const [usersFetchResponse, postsFetchResponse] = await Promise.all([usersFetch, postsFetch])
+
+
+        if (!usersFetchResponse.ok || !postsFetchResponse) {
             throw new Error("something went wrong")
         }
 
-        const responseJson: APIResponse = await response.json()
-        user.value = responseJson.data
+        const usersResponseJson: APIResponse = await usersFetchResponse.json()
+        const postsResponseJson: APIResponse = await postsFetchResponse.json()
+        user.value = usersResponseJson.data
+        posts.value = postsResponseJson.data
     } catch (error) {
         console.log(error)
     }
 }
 
-getOtherUser()
+getUserDataAndPost()
 
 </script>
 <template>
-    <RouterLink to="/home">Back</RouterLink>
-    <p>{{ user?.username }}</p>
-    <p>{{ user?.created_at }}</p>
-    <button class="border-2 cursor-pointer">Follow</button>
+    <section>
+        <RouterLink to="/home">Back</RouterLink>
+        <p>{{ user?.username }}</p>
+        <p>{{ user?.created_at }}</p>
+        <button class="border-2 cursor-pointer">Follow</button>
+    </section>
+    <br>
+    <section>
+        <p>Posts</p>
+        <PostItem v-for="post in posts" :key="post.id" :post="post" />
+    </section>
 </template>
