@@ -41,49 +41,50 @@ async function getPost() {
 
 getPost()
 
-async function likePost() {
-    try {
-        postLikes.value = true
+async function likeHandler() {
+    if (postLikes.value == false) {
+        try {
+            postLikes.value = true
 
-        const url = `http://localhost:8000/posts/${post.value?.id}/likes`
+            const url = `http://localhost:8000/posts/${post.value?.id}/likes`
 
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-        })
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+            })
 
-        if (!response.ok) {
-            throw new Error("something went wrong")
+            if (!response.ok) {
+                throw new Error("something went wrong")
+            }
+
+        } catch (error) {
+            console.log(error)
         }
+    } else {
+        try {
+            postLikes.value = false
 
-    } catch (error) {
-        console.log(error)
-    }
-}
+            const url = `http://localhost:8000/posts/${post.value?.id}/likes`
 
-async function unLikePost() {
-    try {
-        postLikes.value = false
+            const response = await fetch(url, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+            })
 
-        const url = `http://localhost:8000/posts/${post.value?.id}/likes`
-
-        const response = await fetch(url, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-        })
-
-        if (!response.ok) {
-            throw new Error("something went wrong")
+            if (!response.ok) {
+                throw new Error("something went wrong")
+            }
+        } catch (error) {
+            console.log(error)
         }
-    } catch (error) {
-        console.log(error)
     }
+
 }
 </script>
 <template>
@@ -93,8 +94,8 @@ async function unLikePost() {
         <p>{{ post?.created_at }}</p>
         <p>{{ post?.content }}</p>
         <div>
-            <button v-if="postLikes" class="border-2 cursor-pointer" @click="unLikePost">liked</button>
-            <button v-else class="border-2 cursor-pointer" @click="likePost">like</button>
+            <button v-if="postLikes" class="border-2 cursor-pointer" @click="likeHandler">liked</button>
+            <button v-else class="border-2 cursor-pointer" @click="likeHandler">like</button>
         </div>
     </div>
 </template>

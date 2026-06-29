@@ -11,49 +11,50 @@ const postLikes = ref(props.post.liked)
 
 const router = useRouter()
 
-async function likePost() {
-    try {
-        postLikes.value = true
+async function likeHandler() {
+    if (postLikes.value == false) {
+        try {
+            postLikes.value = true
 
-        const url = `http://localhost:8000/posts/${props.post.id}/likes`
+            const url = `http://localhost:8000/posts/${props.post.id}/likes`
 
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-        })
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+            })
 
-        if (!response.ok) {
-            throw new Error("something went wrong")
+            if (!response.ok) {
+                throw new Error("something went wrong")
+            }
+
+        } catch (error) {
+            console.log(error)
         }
+    } else {
+        try {
+            postLikes.value = false
 
-    } catch (error) {
-        console.log(error)
-    }
-}
+            const url = `http://localhost:8000/posts/${props.post.id}/likes`
 
-async function unLikePost() {
-    try {
-        postLikes.value = false
+            const response = await fetch(url, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+            })
 
-        const url = `http://localhost:8000/posts/${props.post.id}/likes`
-
-        const response = await fetch(url, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-        })
-
-        if (!response.ok) {
-            throw new Error("something went wrong")
+            if (!response.ok) {
+                throw new Error("something went wrong")
+            }
+        } catch (error) {
+            console.log(error)
         }
-    } catch (error) {
-        console.log(error)
     }
+
 }
 
 </script>
@@ -62,8 +63,8 @@ async function unLikePost() {
             <p @click.stop="router.push({path: `/u/${post.creator}`})">{{ post.creator }}</p> 
             <p>{{ post.content }}</p>
             <div>
-                <button v-if="postLikes" class="border-2 cursor-pointer" @click.stop="unLikePost">liked</button>
-                <button v-else class="border-2 cursor-pointer" @click.stop="likePost">like</button>
+                <button v-if="postLikes" class="border-2 cursor-pointer" @click.stop="likeHandler">liked</button>
+                <button v-else class="border-2 cursor-pointer" @click.stop="likeHandler">like</button>
             </div>
         </div>
 </template>
