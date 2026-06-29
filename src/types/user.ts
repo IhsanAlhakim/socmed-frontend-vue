@@ -3,6 +3,7 @@ export interface UserData {
     username: string,
     email: string,
     created_at: string
+    followed: boolean
 }
 
 export interface OtherUserData {

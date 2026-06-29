@@ -11,6 +11,20 @@ const props = defineProps({
 
 const user: Ref<UserData | null> = ref(null)
 const posts: Ref<Post[] | null> = ref(null)
+const isLoggedInUser: Ref<boolean> = ref(false)
+const followed: Ref<boolean> = ref(false)
+
+let loggedInUserDataObjStr = localStorage.getItem("userObj")
+
+let loggedInUserDataObj: UserData| null = null
+
+if (loggedInUserDataObjStr) {
+    loggedInUserDataObj = JSON.parse(loggedInUserDataObjStr)   
+}
+
+if (loggedInUserDataObj?.username == props.username) {
+    isLoggedInUser.value = true 
+}
 
 async function getUserDataAndPost() {
     try {
@@ -42,7 +56,9 @@ async function getUserDataAndPost() {
 
         const usersResponseJson: APIResponse = await usersFetchResponse.json()
         const postsResponseJson: APIResponse = await postsFetchResponse.json()
-        user.value = usersResponseJson.data
+        const userData: UserData = usersResponseJson.data
+        user.value = userData
+        followed.value = userData.followed
         posts.value = postsResponseJson.data
     } catch (error) {
         console.log(error)
@@ -51,13 +67,68 @@ async function getUserDataAndPost() {
 
 getUserDataAndPost()
 
+async function followHandler() {
+    let requestBody = {
+        followed_id : user.value?.id 
+    }
+
+    if (followed.value == false) {
+        try {
+            followed.value = true
+
+            const url = `http://localhost:8000/follow`
+
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify(requestBody)
+            })
+
+            if (!response.ok) {
+                throw new Error("something went wrong")
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
+    } else {
+        try {
+            followed.value = false
+
+            const url = `http://localhost:8000/follow`
+
+            const response = await fetch(url, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify(requestBody)
+            })
+
+            if (!response.ok) {
+                throw new Error("something went wrong")
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+}
+
 </script>
 <template>
     <section>
         <RouterLink to="/home">Back</RouterLink>
         <p>{{ user?.username }}</p>
         <p>{{ user?.created_at }}</p>
-        <button class="border-2 cursor-pointer">Follow</button>
+       <div v-if="!isLoggedInUser">
+                <button v-if="followed" class="border-2 cursor-pointer" @click.stop="followHandler">followed</button>
+                <button v-else class="border-2 cursor-pointer" @click.stop="followHandler">follow</button>
+            </div>
     </section>
     <br>
     <section>
