@@ -86,6 +86,36 @@ async function likeHandler() {
     }
 
 }
+
+const createCommentContent = ref("")
+async function createComment() {
+    try {
+        let url = `http://localhost:8000/posts/${post.value?.id}/comments`
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+            body: JSON.stringify({
+                "content": createCommentContent.value
+            })
+        })
+
+        if (!response.ok) {
+            throw new Error("something went wrong")
+        }
+        alert("comment created")
+        createCommentContent.value = ""
+    } catch (error) {
+        console.log(error)
+        alert("create post failed")
+    }
+}
+
+
+
 </script>
 <template>
     <RouterLink to="/home">Back</RouterLink>
@@ -98,4 +128,12 @@ async function likeHandler() {
             <button v-else class="border-2 cursor-pointer" @click="likeHandler">like</button>
         </div>
     </div>
+    <br>
+    <form @submit.prevent="createComment">
+        <div>
+            <textarea rows="5" cols="30" v-model="createCommentContent" class="border-2"></textarea>
+        </div>
+        <button class="border-2 cursor-pointer">Reply</button>
+    </form>
+    <br>
 </template>
