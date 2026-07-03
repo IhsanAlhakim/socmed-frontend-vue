@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Post } from '@/types/post';
+import type { PostComment } from '@/types/postComment';
 import type { APIResponse } from '@/types/responseJson';
 import { ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -11,13 +12,15 @@ const props = defineProps({
 const router = useRouter()
 
 const post: Ref<Post | null> = ref(null)
+const comments: Ref<PostComment[]> = ref([])
 const postLikes = ref(false)
 
-async function getPost() {
+async function getPostAndComments() {
     try {
-        let url = `http://localhost:8000/posts/${props.postId}`
+        let getPostUrl = `http://localhost:8000/posts/${props.postId}`
+        let getPostCommentsUrl = `http://localhost:8000/posts/${props.postId}/comments`
 
-        const response = await fetch(url, {
+        const getPostFetch = fetch(getPostUrl, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
@@ -25,21 +28,33 @@ async function getPost() {
             credentials: "include",
         })
 
-        if (!response.ok) {
+        const getPostCommentsFetch = fetch(getPostCommentsUrl, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+        })
+
+        const [getPostResponse, getPostCommentsResponse] = await Promise.all([getPostFetch, getPostCommentsFetch]) 
+
+        if (!getPostResponse.ok || !getPostCommentsResponse.ok) {
             throw new Error("something went wrong")
         }
 
-        const responseJson: APIResponse = await response.json()
-        const PostData: Post = responseJson.data
+        const postResponseJson: APIResponse = await getPostResponse.json()
+        const commentsResponseJson: APIResponse = await getPostCommentsResponse.json()
+        const PostData: Post = postResponseJson.data
 
         post.value = PostData
+        comments.value = commentsResponseJson.data
         postLikes.value = PostData.liked
     } catch (error) {
         console.log(error)
     }
 }
 
-getPost()
+getPostAndComments()
 
 async function likeHandler() {
     if (postLikes.value == false) {
@@ -136,4 +151,12 @@ async function createComment() {
         <button class="border-2 cursor-pointer">Reply</button>
     </form>
     <br>
+    <section>
+        <p>Comments</p>
+        <br>
+        <div v-for="comment in comments" :key="comment.id" class="mb-4">
+            <p>{{ comment.username }}</p>
+            <p>{{ comment.content }}</p>
+        </div>
+    </section>
 </template>
