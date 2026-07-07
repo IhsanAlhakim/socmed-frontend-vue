@@ -14,6 +14,8 @@ const router = useRouter()
 const post: Ref<Post | null> = ref(null)
 const comments: Ref<PostComment[]> = ref([])
 const postLikes = ref(false)
+const postLikeCount = ref(0)
+
 
 async function getPostAndComments() {
     try {
@@ -49,6 +51,7 @@ async function getPostAndComments() {
         post.value = PostData
         comments.value = commentsResponseJson.data
         postLikes.value = PostData.liked
+        postLikeCount.value = PostData.like_count
     } catch (error) {
         console.log(error)
     }
@@ -60,6 +63,7 @@ async function likeHandler() {
     if (postLikes.value == false) {
         try {
             postLikes.value = true
+            postLikeCount.value = postLikeCount.value + 1
 
             const url = `http://localhost:8000/posts/${post.value?.id}/likes`
 
@@ -81,6 +85,7 @@ async function likeHandler() {
     } else {
         try {
             postLikes.value = false
+            postLikeCount.value = postLikeCount.value - 1
 
             const url = `http://localhost:8000/posts/${post.value?.id}/likes`
 
@@ -138,10 +143,12 @@ async function createComment() {
         <p @click="router.push(`/u/${post?.creator}`)" class="cursor-pointer">{{ post?.creator }}</p>
         <p>{{ post?.created_at }}</p>
         <p>{{ post?.content }}</p>
-        <div>
+        <div class="flex">
             <button v-if="postLikes" class="border-2 cursor-pointer" @click="likeHandler">liked</button>
             <button v-else class="border-2 cursor-pointer" @click="likeHandler">like</button>
+            <p>: {{ postLikeCount }}</p>
         </div>
+        <p>comment : {{ post?.comment_count }}</p>
     </div>
     <br>
     <form @submit.prevent="createComment">
