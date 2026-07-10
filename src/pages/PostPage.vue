@@ -2,6 +2,7 @@
 import type { Post } from '@/types/post';
 import type { PostComment } from '@/types/postComment';
 import type { APIResponse } from '@/types/responseJson';
+import type { UserData } from '@/types/user';
 import { ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -10,6 +11,18 @@ const props = defineProps({
 })
 
 const router = useRouter()
+
+let userDataObjStr = localStorage.getItem("userObj")
+
+let userDataObj
+
+if (!userDataObjStr) {
+    router.push("/")
+} else {
+    userDataObj = JSON.parse(userDataObjStr)
+}
+
+const userData: Ref<UserData> = ref(userDataObj)
 
 const post: Ref<Post | null> = ref(null)
 const comments: Ref<PostComment[]> = ref([])
@@ -38,7 +51,7 @@ async function getPostAndComments() {
             credentials: "include",
         })
 
-        const [getPostResponse, getPostCommentsResponse] = await Promise.all([getPostFetch, getPostCommentsFetch]) 
+        const [getPostResponse, getPostCommentsResponse] = await Promise.all([getPostFetch, getPostCommentsFetch])
 
         if (!getPostResponse.ok || !getPostCommentsResponse.ok) {
             throw new Error("something went wrong")
@@ -52,6 +65,7 @@ async function getPostAndComments() {
         comments.value = commentsResponseJson.data
         postLikes.value = PostData.liked
         postLikeCount.value = PostData.like_count
+
     } catch (error) {
         console.log(error)
     }
@@ -134,6 +148,32 @@ async function createComment() {
     }
 }
 
+async function deleteCommentHandler(commentId: number) {
+    if (!confirm("do you want to delete this comment")) {
+        return
+    }
+    try {
+        const url = `http://localhost:8000/comments/${commentId}`
+
+        const response = await fetch(url, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+        })
+
+        if (!response.ok) {
+            throw new Error("something went wrong")
+        }
+        alert("comment deleted")
+
+    } catch (error) {
+        console.log(error)
+        alert("failed to delete comment")
+    }
+}
+
 
 
 </script>
@@ -162,6 +202,8 @@ async function createComment() {
         <p>Comments</p>
         <br>
         <div v-for="comment in comments" :key="comment.id" class="mb-4">
+            <button v-if="userData.id === comment.user_id || userData.id === post?.user_id"
+                class="border-2 cursor-pointer" @click="deleteCommentHandler(comment.id)">Delete</button>
             <p>{{ comment.username }}</p>
             <p>{{ comment.content }}</p>
         </div>
