@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import PostItem from '@/components/home/PostItem.vue'
+import { loggedInUserKey } from '@/config/injectionKeys'
 import type { Post } from '@/types/post'
 import type { APIResponse } from '@/types/responseJson'
 import type { UserData } from '@/types/user'
-import { ref, type Ref } from 'vue'
+import { inject, ref, type Ref } from 'vue'
 
 const props = defineProps({
     username: String,
@@ -11,20 +12,10 @@ const props = defineProps({
 
 const user: Ref<UserData | null> = ref(null)
 const posts: Ref<Post[] | null> = ref(null)
-const isLoggedInUser: Ref<boolean> = ref(false)
 const followed: Ref<boolean> = ref(false)
 
-let loggedInUserDataObjStr = localStorage.getItem("userObj")
+const loggedInUser = inject(loggedInUserKey)
 
-let loggedInUserDataObj: UserData| null = null
-
-if (loggedInUserDataObjStr) {
-    loggedInUserDataObj = JSON.parse(loggedInUserDataObjStr)   
-}
-
-if (loggedInUserDataObj?.username == props.username) {
-    isLoggedInUser.value = true 
-}
 
 async function getUserDataAndPost() {
     try {
@@ -42,7 +33,7 @@ async function getUserDataAndPost() {
         const postsFetch = fetch(postsDataApiUrl, {
             method: "GET",
             headers: {
-                "Content-Type":"application/json"
+                "Content-Type": "application/json"
             },
             credentials: "include",
         })
@@ -69,7 +60,7 @@ getUserDataAndPost()
 
 async function followHandler() {
     let requestBody = {
-        followed_id : user.value?.id 
+        followed_id: user.value?.id
     }
 
     if (followed.value == false) {
@@ -125,10 +116,10 @@ async function followHandler() {
         <RouterLink to="/home">Back</RouterLink>
         <p>{{ user?.username }}</p>
         <p>{{ user?.created_at }}</p>
-       <div v-if="!isLoggedInUser">
-                <button v-if="followed" class="border-2 cursor-pointer" @click.stop="followHandler">followed</button>
-                <button v-else class="border-2 cursor-pointer" @click.stop="followHandler">follow</button>
-            </div>
+        <div v-if="user && loggedInUser && user.username != loggedInUser.username">
+            <button v-if="followed" class="border-2 cursor-pointer" @click.stop="followHandler">followed</button>
+            <button v-else class="border-2 cursor-pointer" @click.stop="followHandler">follow</button>
+        </div>
     </section>
     <br>
     <section>

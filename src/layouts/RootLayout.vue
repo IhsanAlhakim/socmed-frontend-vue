@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { loggedInUserKey } from '@/config/injectionKeys'
 import type { UserData } from '@/types/user'
-import { ref, type Ref } from 'vue'
+import { provide, ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -16,6 +17,8 @@ if (!userDataObjStr) {
 }
 
 const userData: Ref<UserData> = ref(userDataObj)
+
+provide(loggedInUserKey, userDataObj)
 
 async function signOut() {
     if (!confirm("are you sure you want to sign out?") === true) {
