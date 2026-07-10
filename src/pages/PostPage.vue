@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { loggedInUserKey } from '@/config/injectionKeys';
 import type { Post } from '@/types/post';
 import type { PostComment } from '@/types/postComment';
 import type { APIResponse } from '@/types/responseJson';
 import type { UserData } from '@/types/user';
-import { ref, type Ref } from 'vue';
+import { inject, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const props = defineProps({
@@ -12,17 +13,7 @@ const props = defineProps({
 
 const router = useRouter()
 
-let userDataObjStr = localStorage.getItem("userObj")
-
-let userDataObj
-
-if (!userDataObjStr) {
-    router.push("/")
-} else {
-    userDataObj = JSON.parse(userDataObjStr)
-}
-
-const userData: Ref<UserData> = ref(userDataObj)
+const loggedInUser = inject(loggedInUserKey)
 
 const post: Ref<Post | null> = ref(null)
 const comments: Ref<PostComment[]> = ref([])
@@ -202,7 +193,7 @@ async function deleteCommentHandler(commentId: number) {
         <p>Comments</p>
         <br>
         <div v-for="comment in comments" :key="comment.id" class="mb-4">
-            <button v-if="userData.id === comment.user_id || userData.id === post?.user_id"
+            <button v-if="loggedInUser && post && (loggedInUser.id === comment.user_id || loggedInUser.id === post.user_id)"
                 class="border-2 cursor-pointer" @click="deleteCommentHandler(comment.id)">Delete</button>
             <p>{{ comment.username }}</p>
             <p>{{ comment.content }}</p>
