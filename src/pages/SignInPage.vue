@@ -1,53 +1,44 @@
 <script setup lang="ts">
+import { signIn, type SignInUser } from '@/api/users';
+import { HttpError } from '@/errors/http-error';
+import { unknownErrorMessage } from '@/errors/unknown-error';
 import { ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-
-interface SignInUser {
-    email: string,
-    password: string
-}
+const router = useRouter()
 
 const signInUser: Ref<SignInUser> = ref({
     email: "",
     password: "",
 })
 
-let router = useRouter()
-
-async function signIn(){
-    let requestBody: SignInUser = {
-        email: signInUser.value.email,
-        password: signInUser.value.password
-    }
-
+async function signInFormHandler(){
     try {
-        let url = "http://localhost:8000/sessions"
-    
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type":"application/json"
-            },
-            credentials: "include",
-            body: JSON.stringify(requestBody)
+        const signInResponse = await signIn({
+            email: signInUser.value.email,
+            password: signInUser.value.password
         })
     
-        if (!response.ok) {
-            throw new Error("something went wrong")
+        if (!signInResponse.ok) {
+            throw signInResponse.error
         }
+
         router.push("/home")
     } catch (error) {
-        alert("sign in failed")
-        return
+        if (error instanceof HttpError) {
+            alert(error.message)
+        } else {
+            alert(unknownErrorMessage)
+        }
     }
+
 }
 
 </script>
 
 <template>
 <h2>Sign In</h2>
-<form @submit.prevent="signIn">
+<form @submit.prevent="signInFormHandler">
     <div>
         <label for="email">Email</label>
         <input type="email" required name="email" v-model="signInUser.email">

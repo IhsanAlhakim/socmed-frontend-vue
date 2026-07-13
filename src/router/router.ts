@@ -1,12 +1,11 @@
 import RootLayout from "@/layouts/RootLayout.vue"
 import Home from "@/pages/Home.vue"
-import SignIn from "@/pages/SignIn.vue"
+import PostPage from "@/pages/PostPage.vue"
+import SignIn from "@/pages/SignInPage.vue"
 import SignUp from "@/pages/SignUp.vue"
-import type { APIResponse } from "@/types/responseJson"
+import UserPage from "@/pages/UserPage.vue"
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router"
 import { beforeEnterRoot } from "./before_enter_func"
-import PostPage from "@/pages/PostPage.vue"
-import UserPage from "@/pages/UserPage.vue"
 
 const routes: RouteRecordRaw[] = [
     {path: "/signin", component: SignIn},
