@@ -1,5 +1,6 @@
 import { HttpError } from "@/errors/http-error"
 import type { APIRequestFunctionReturnType } from "./types"
+import { unknownErrorMessage } from "@/errors/unknown-error"
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
 
@@ -29,6 +30,34 @@ export async function signIn(signInUserData: SignInUser): Promise<APIRequestFunc
         if (!response.ok) {
             const errorResponse: string = await response.text()
             throw new HttpError(errorResponse)
+        }
+
+        return {
+            ok: true
+        }
+
+    } catch (error) {
+        return {
+            ok: false,
+            error: error
+        }
+    }
+}
+
+export async function signOut(): Promise<APIRequestFunctionReturnType> {
+    try {
+        const apiUrl = `${apiBaseUrl}/sessions`
+    
+        const response = await fetch(apiUrl, {
+            method: "DELETE",
+            headers: {
+                "Content-Type":"application/json"
+            },
+            credentials: "include",
+        })
+        
+        if (!response.ok) {
+            throw new Error(unknownErrorMessage)
         }
 
         return {

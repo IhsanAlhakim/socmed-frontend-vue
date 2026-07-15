@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { signOut } from '@/api/users'
 import { loggedInUserKey } from '@/config/injectionKeys'
+import { unknownErrorMessage } from '@/errors/unknown-error'
 import type { UserData } from '@/types/user'
 import { provide, ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -20,31 +22,21 @@ const userData: Ref<UserData> = ref(userDataObj)
 
 provide(loggedInUserKey, userDataObj)
 
-async function signOut() {
-    if (!confirm("are you sure you want to sign out?") === true) {
+async function signOutButtonHandler() {
+    if (!confirm("are you sure you want to sign out?")) {
         return
     }
 
     try {
-        const url = "http://localhost:8000/sessions"
+        const signOutResponse = await signOut()
 
-        const response = await fetch(url, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-        })
-
-        if (!response.ok) {
-            throw new Error("something went wrong")
+        if (!signOutResponse.ok) {
+            throw signOutResponse.error
         }
 
         router.push("/signin")
-
     } catch (error) {
-        console.log(error)
-        alert("signout failed")
+        alert(`signOut failed`)
     }
 }
 </script>
@@ -52,7 +44,7 @@ async function signOut() {
 <template>
     <aside>
         <p>Hello {{ userData.username }}</p>
-        <button @click="signOut">Logout</button>
+        <button @click="signOutButtonHandler">Logout</button>
     </aside>
     <br>
     <main>
