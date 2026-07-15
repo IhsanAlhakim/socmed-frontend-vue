@@ -1,58 +1,46 @@
 <script setup lang="ts">
+import { signUp, type NewUserFormData } from '@/api/users';
+import { HttpError } from '@/errors/http-error';
+import { unknownErrorMessage } from '@/errors/unknown-error';
 import { ref, type Ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-interface User {
-    email: string,
-    username: string,
-    password: string,
-    confirmPassword: string,
-}
-
-const newUser: Ref<User> = ref({
-    email : "",
+const newUser: Ref<NewUserFormData> = ref({
+    email: "",
     username: "",
     password: "",
     confirmPassword: "",
 })
 
-async function createUser() {
+const router = useRouter()
+
+async function signUpFormHandler() {
     if (newUser.value.password !== newUser.value.confirmPassword) {
         alert("password does not match")
         return
     }
 
-    let requestBody = {
-        email: newUser.value.email,
-        username: newUser.value.username,
-        password: newUser.value.password
-    }
-    
     try {
-        let url = "http://localhost:8000/users"
-    
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type":"application/json",
-            },
-            body: JSON.stringify(requestBody)
+        const signUpResponse = await signUp({
+            email: newUser.value.email,
+            username: newUser.value.username,
+            password: newUser.value.password
         })
-    
-        if (!response.ok) {
-            throw new Error("something went wrong")
+
+        if (!signUpResponse.ok) {
+            throw signUpResponse.error
         }
-        
-        alert("create user successful")
-    
-        newUser.value = {
-            email: "",
-            username: "",
-            password: "",
-            confirmPassword: "",
-        }
+
+        alert("user created")
+
+        router.push("/signin")
+
     } catch (error) {
-        alert("create user failed")
-        return
+        if (error instanceof HttpError) {
+            alert(error.message)
+        } else {
+            alert(unknownErrorMessage)
+        }
     }
 }
 
@@ -61,7 +49,7 @@ async function createUser() {
 <template>
     <RouterLink to="/signin">Back</RouterLink>
     <h2>Sign Up</h2>
-    <form @submit.prevent="createUser">
+    <form @submit.prevent="signUpFormHandler">
         <div>
             <label for="email">Email</label>
             <input type="email" required name="email" v-model="newUser.email">
@@ -78,7 +66,7 @@ async function createUser() {
             <label for="confirm_password">Confirm Password</label>
             <input type="password" required name="confirm_password" v-model="newUser.confirmPassword">
         </div>
-    <button>Sign Up</button>
+        <button>Sign Up</button>
     </form>
     <RouterLink to="/signin">Already have an account</RouterLink>
 </template>

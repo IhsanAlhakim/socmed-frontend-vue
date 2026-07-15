@@ -9,13 +9,56 @@ export interface SignInUser {
 }
 
 export async function signIn(signInUserData: SignInUser): Promise<APIRequestFunctionReturnType> {
-    let requestBody: SignInUser = {
+    const requestBody: SignInUser = {
         email: signInUserData.email,
         password: signInUserData.password
     }
 
     try {
         const apiUrl = `${apiBaseUrl}/sessions`
+    
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type":"application/json"
+            },
+            credentials: "include",
+            body: JSON.stringify(requestBody)
+        })
+        
+        if (!response.ok) {
+            const errorResponse: string = await response.text()
+            throw new HttpError(errorResponse)
+        }
+
+        return {
+            ok: true
+        }
+
+    } catch (error) {
+        return {
+            ok: false,
+            error: error
+        }
+    }
+}
+
+export interface NewUserFormData {
+    email: string,
+    username: string,
+    password: string,
+    confirmPassword?: string,
+}
+
+export async function signUp(signUpUserData: NewUserFormData): Promise<APIRequestFunctionReturnType> {
+    const requestBody = {
+        email: signUpUserData.email,
+        username: signUpUserData.username,
+        password: signUpUserData.password
+    }
+    
+    try {
+        const apiUrl = `${apiBaseUrl}/users`
     
         const response = await fetch(apiUrl, {
             method: "POST",
