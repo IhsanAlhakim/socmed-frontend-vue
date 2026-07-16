@@ -1,8 +1,7 @@
 import { HttpError } from "@/errors/http-error"
 import type { APIRequestFunctionReturnType } from "./types"
 import { unknownErrorMessage } from "@/errors/unknown-error"
-
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+import { apiFetch } from "./client"
 
 export interface SignInUser {
     email: string,
@@ -15,10 +14,8 @@ export async function signIn(signInUserData: SignInUser): Promise<APIRequestFunc
         password: signInUserData.password
     }
 
-    try {
-        const apiUrl = `${apiBaseUrl}/sessions`
-    
-        const response = await fetch(apiUrl, {
+    try {    
+        const response = await apiFetch("/sessions", {
             method: "POST",
             headers: {
                 "Content-Type":"application/json"
@@ -45,10 +42,8 @@ export async function signIn(signInUserData: SignInUser): Promise<APIRequestFunc
 }
 
 export async function signOut(): Promise<APIRequestFunctionReturnType> {
-    try {
-        const apiUrl = `${apiBaseUrl}/sessions`
-    
-        const response = await fetch(apiUrl, {
+    try {    
+        const response = await apiFetch("/sessions", {
             method: "DELETE",
             headers: {
                 "Content-Type":"application/json"
@@ -86,10 +81,8 @@ export async function signUp(signUpUserData: NewUserFormData): Promise<APIReques
         password: signUpUserData.password
     }
     
-    try {
-        const apiUrl = `${apiBaseUrl}/users`
-    
-        const response = await fetch(apiUrl, {
+    try {    
+        const response = await apiFetch("/users", {
             method: "POST",
             headers: {
                 "Content-Type":"application/json"
