@@ -39,6 +39,7 @@ async function signUpFormHandler() {
         if (error instanceof HttpError) {
             alert(error.message)
         } else {
+            console.log(error)
             alert(unknownErrorMessage)
         }
     }
