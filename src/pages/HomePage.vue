@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { createPost } from '@/api/posts';
+import { createPost, getPost } from '@/api/posts';
 import PostItem from '@/components/home/PostItem.vue';
 import { HttpError } from '@/errors/http-error';
 import { unknownErrorMessage } from '@/errors/unknown-error';
 import type { Post } from '@/types/post';
-import type { APIResponse } from '@/types/responseJson';
 import { ref, type Ref } from 'vue';
 
 const postContent: Ref<string> = ref("")
@@ -32,30 +31,27 @@ async function createPostFormHandler() {
 
 const posts: Ref<Post[] | null> = ref(null)
 
-async function getPosts() {
+async function getPostsHandler() {
     try {
-        let url = "http://localhost:8000/posts"
+        const getPostsResponse = await getPost()
 
-        const response = await fetch(url, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-        })
-
-        if (!response.ok) {
-            throw new Error("something went wrong")
+        if (!getPostsResponse.ok) {
+            throw getPostsResponse.error
         }
 
-        const responseJson: APIResponse = await response.json()
-        posts.value = responseJson.data
+        posts.value = getPostsResponse.response?.data
+
     } catch (error) {
-        console.log(error)
+       if (error instanceof HttpError) {
+            alert(error.message)
+        } else {
+            console.log(error)
+            alert(unknownErrorMessage)
+        } 
     }
 }
 
-getPosts()
+getPostsHandler()
 
 </script>
 <template>
