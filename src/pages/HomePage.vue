@@ -1,40 +1,32 @@
 <script setup lang="ts">
+import { createPost } from '@/api/posts';
 import PostItem from '@/components/home/PostItem.vue';
+import { HttpError } from '@/errors/http-error';
+import { unknownErrorMessage } from '@/errors/unknown-error';
 import type { Post } from '@/types/post';
 import type { APIResponse } from '@/types/responseJson';
 import { ref, type Ref } from 'vue';
 
 const postContent: Ref<string> = ref("")
 
-interface CreatePostRequestBody {
-    content: string
-}
-
-async function createPost() {
-    let requestBody: CreatePostRequestBody = {
-        content: postContent.value
-    }
-
+async function createPostFormHandler() {
     try {
-        let url = "http://localhost:8000/posts"
+        const createPostResponse = await createPost(postContent.value)
 
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-            body: JSON.stringify(requestBody)
-        })
-
-        if (!response.ok) {
-            throw new Error("something went wrong")
+        if (!createPostResponse.ok) {
+            throw createPostResponse.error
         }
+
         alert("post created")
+
         postContent.value = ""
     } catch (error) {
-        console.log(error)
-        alert("create post failed")
+       if (error instanceof HttpError) {
+            alert(error.message)
+        } else {
+            console.log(error)
+            alert(unknownErrorMessage)
+        } 
     }
 }
 
@@ -68,7 +60,7 @@ getPosts()
 </script>
 <template>
     <section>
-        <form @submit.prevent="createPost">
+        <form @submit.prevent="createPostFormHandler">
             <div>
                 <textarea rows="5" cols="30" v-model="postContent" class="border-2"></textarea>
             </div>

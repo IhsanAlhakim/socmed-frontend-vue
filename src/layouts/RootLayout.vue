@@ -36,7 +36,7 @@ async function signOutButtonHandler() {
 
         router.push("/signin")
     } catch (error) {
-        alert(`signOut failed`)
+        alert("signOut failed")
     }
 }
 </script>

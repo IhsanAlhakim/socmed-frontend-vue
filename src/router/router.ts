@@ -1,5 +1,5 @@
 import RootLayout from "@/layouts/RootLayout.vue"
-import Home from "@/pages/Home.vue"
+import HomePage from "@/pages/HomePage.vue"
 import PostPage from "@/pages/PostPage.vue"
 import SignIn from "@/pages/SignInPage.vue"
 import SignUp from "@/pages/SignUpPage.vue"
@@ -14,7 +14,7 @@ const routes: RouteRecordRaw[] = [
         path: "/", 
         component: RootLayout,
         children: [
-            {path: "home", component: Home},
+            {path: "home", component: HomePage},
             {path: "p/:postId", component: PostPage, props: true},
             {path: "u/:username", component: UserPage, props: true}
         ],
