@@ -38,6 +38,32 @@ export async function createPost(postContent: string): Promise<APIRequestFunctio
     }
 }
 
+export async function deletePost(postId: number): Promise<APIRequestFunctionReturnType> {
+    try {
+        const response = await apiFetch(`/posts/${postId}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+        })
+
+        if (!response.ok) {
+            const errorResponse: string = await response.text()
+            throw new HttpError(errorResponse)
+        }
+
+        return {
+            ok: true
+        }
+    } catch (error) {
+        return {
+            ok: false,
+            error: error
+        }
+    }
+}
+
 export async function getPost(): Promise<APIRequestFunctionReturnType> {
     try {
         const response = await apiFetch("/posts", {

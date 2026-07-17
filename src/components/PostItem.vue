@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { likePost, unlikePost } from '@/api/post-likes';
+import { deletePost } from '@/api/posts';
 import { loggedInUserKey } from '@/config/injectionKeys';
 import { HttpError } from '@/errors/http-error';
 import { unknownErrorMessage } from '@/errors/unknown-error';
@@ -21,7 +22,7 @@ const loggedInUser = inject(loggedInUserKey)
 async function likeHandler() {
     try {
         if (postLikes.value == false) {
-            
+
             const likePostResponse = await likePost(props.post.id)
 
             if (!likePostResponse.ok) {
@@ -32,11 +33,11 @@ async function likeHandler() {
 
         } else {
             const unlikePostResponse = await unlikePost(props.post.id)
-            
+
             if (!unlikePostResponse.ok) {
                 throw unlikePostResponse.error
             }
-            
+
             postLikes.value = false
             postLikeCount.value = postLikeCount.value - 1
         }
@@ -62,23 +63,21 @@ async function deletePostHandler() {
     }
 
     try {
-        const url = `http://localhost:8000/posts/${props.post.id}`
+        const deletePostResponse = await deletePost(props.post.id)
 
-        const response = await fetch(url, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-        })
-
-        if (!response.ok) {
-            throw new Error("something went wrong")
+        if (!deletePostResponse.ok) {
+            throw deletePostResponse.error
         }
+
         alert("post deleted")
 
     } catch (error) {
-        console.log(error)
+        if (error instanceof HttpError) {
+            alert(error.message)
+        } else {
+            console.log(error)
+            alert(unknownErrorMessage)
+        }
     }
 }
 
