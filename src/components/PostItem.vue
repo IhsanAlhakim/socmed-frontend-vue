@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { likePost, unlikePost } from '@/api/post-likes';
 import { loggedInUserKey } from '@/config/injectionKeys';
+import { HttpError } from '@/errors/http-error';
+import { unknownErrorMessage } from '@/errors/unknown-error';
 import type { Post } from '@/types/post';
 import { inject, ref } from 'vue';
 import { useRouter } from 'vue-router';
+
 interface Props {
     post: Post
 }
@@ -10,56 +14,38 @@ const props = defineProps<Props>()
 
 const postLikes = ref(props.post.liked)
 const postLikeCount = ref(props.post.like_count)
-
 const router = useRouter()
-
 const loggedInUser = inject(loggedInUserKey)
 
 
 async function likeHandler() {
-    if (postLikes.value == false) {
-        try {
+    try {
+        if (postLikes.value == false) {
+            
+            const likePostResponse = await likePost(props.post.id)
+
+            if (!likePostResponse.ok) {
+                throw likePostResponse.error
+            }
             postLikes.value = true
             postLikeCount.value = postLikeCount.value + 1
 
-
-            const url = `http://localhost:8000/posts/${props.post.id}/likes`
-
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                credentials: "include",
-            })
-
-            if (!response.ok) {
-                throw new Error("something went wrong")
+        } else {
+            const unlikePostResponse = await unlikePost(props.post.id)
+            
+            if (!unlikePostResponse.ok) {
+                throw unlikePostResponse.error
             }
-
-        } catch (error) {
-            console.log(error)
-        }
-    } else {
-        try {
+            
             postLikes.value = false
             postLikeCount.value = postLikeCount.value - 1
-
-            const url = `http://localhost:8000/posts/${props.post.id}/likes`
-
-            const response = await fetch(url, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                credentials: "include",
-            })
-
-            if (!response.ok) {
-                throw new Error("something went wrong")
-            }
-        } catch (error) {
+        }
+    } catch (error) {
+        if (error instanceof HttpError) {
+            alert(error.message)
+        } else {
             console.log(error)
+            alert(unknownErrorMessage)
         }
     }
 

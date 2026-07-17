@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import PostItem from '@/components/home/PostItem.vue'
+import PostItem from '@/components/PostItem.vue'
 import { loggedInUserKey } from '@/config/injectionKeys'
 import type { Post } from '@/types/post'
 import type { APIResponse } from '@/types/responseJson'

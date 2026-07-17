@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { createPost, getPost } from '@/api/posts';
-import PostItem from '@/components/home/PostItem.vue';
+import PostItem from '@/components/PostItem.vue';
 import { HttpError } from '@/errors/http-error';
 import { unknownErrorMessage } from '@/errors/unknown-error';
 import type { Post } from '@/types/post';
