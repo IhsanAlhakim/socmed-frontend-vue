@@ -109,6 +109,36 @@ export async function signUp(signUpUserData: NewUserFormData): Promise<APIReques
     }
 }
 
+export async function getLoggedInUser(): Promise<APIRequestFunctionReturnType> {
+    try {    
+        const response = await apiFetch("/users", {
+            method: "GET",
+            headers: {
+                "Content-Type":"application/json"
+            },
+            credentials: "include",
+        })
+        
+        if (!response.ok) {
+            const errorResponse: string = await response.text()
+            throw new HttpError(errorResponse)
+        }
+
+        const responseJSON: APIResponse = await response.json()
+        
+        return {
+            ok: true,
+            response: responseJSON
+        }
+
+    } catch (error) {
+        return {
+            ok: false,
+            error: error
+        }
+    }
+}
+
 export async function getUserByUsername(username: string): Promise<APIRequestFunctionReturnType> {
     try {    
         const response = await apiFetch(`/users/${username}`, {

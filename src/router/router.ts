@@ -5,7 +5,7 @@ import SignIn from "@/pages/SignInPage.vue"
 import SignUp from "@/pages/SignUpPage.vue"
 import UserPage from "@/pages/UserPage.vue"
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router"
-import { beforeEnterRoot } from "./before_enter_func"
+import { beforeEnterRoot } from "./before-enter-funcs"
 
 const routes: RouteRecordRaw[] = [
     {path: "/signin", component: SignIn},
