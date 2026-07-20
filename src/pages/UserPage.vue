@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { getPostsByUsername } from '@/api/posts'
+import { getUserByUsername } from '@/api/users'
 import PostItem from '@/components/PostItem.vue'
 import { loggedInUserKey } from '@/config/injectionKeys'
+import { HttpError } from '@/errors/http-error'
+import { unknownErrorMessage } from '@/errors/unknown-error'
 import type { Post } from '@/types/post'
 import type { APIResponse } from '@/types/responseJson'
 import type { UserData } from '@/types/user'
@@ -18,41 +22,38 @@ const loggedInUser = inject(loggedInUserKey)
 
 
 async function getUserDataAndPost() {
+    if (!props.username) {
+        return
+    }
+
     try {
-        const usersDataApiUrl = `http://localhost:8000/users/${props.username}`
-        const postsDataApiUrl = `http://localhost:8000/users/${props.username}/posts`
-
-        const usersFetch = fetch(usersDataApiUrl, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-        })
-
-        const postsFetch = fetch(postsDataApiUrl, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-        })
-
-        const [usersFetchResponse, postsFetchResponse] = await Promise.all([usersFetch, postsFetch])
+        const [getUserResponse, getPostsResponse] = await Promise.all([getUserByUsername(props.username), getPostsByUsername(props.username) ])
 
 
-        if (!usersFetchResponse.ok || !postsFetchResponse) {
-            throw new Error("something went wrong")
+        if (!getUserResponse.ok) {
+            throw getUserResponse.error
         }
 
-        const usersResponseJson: APIResponse = await usersFetchResponse.json()
-        const postsResponseJson: APIResponse = await postsFetchResponse.json()
-        const userData: UserData = usersResponseJson.data
+        if (!getPostsResponse.ok) {
+            throw getPostsResponse.error
+        }
+
+        if(!getUserResponse.response || !getPostsResponse.response) {
+            throw new Error("empty response")    
+        }
+
+        const userData: UserData = getUserResponse.response.data
         user.value = userData
         followed.value = userData.followed
-        posts.value = postsResponseJson.data
+        posts.value = getPostsResponse.response.data
+        
     } catch (error) {
-        console.log(error)
+        if (error instanceof HttpError) {
+            alert(error.message)
+        } else {
+            console.log(error)
+            alert(unknownErrorMessage)
+        }
     }
 }
 

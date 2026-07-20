@@ -93,3 +93,33 @@ export async function getPost(): Promise<APIRequestFunctionReturnType> {
         }
     }
 }
+
+export async function getPostsByUsername(username: string): Promise<APIRequestFunctionReturnType> {
+    try {
+        const response = await apiFetch(`/users/${username}/posts`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+        })
+
+        if (!response.ok) {
+            const errorResponse: string = await response.text()
+            throw new HttpError(errorResponse)
+        }
+
+        const responseJSON: APIResponse = await response.json()
+
+        return {
+            ok: true,
+            response: responseJSON
+        }
+        
+    } catch (error) {
+        return {
+            ok: false,
+            error: error
+        }
+    }
+}

@@ -2,6 +2,7 @@ import { HttpError } from "@/errors/http-error"
 import type { APIRequestFunctionReturnType } from "./types"
 import { unknownErrorMessage } from "@/errors/unknown-error"
 import { apiFetch } from "./client"
+import type { APIResponse } from "@/types/responseJson"
 
 export interface SignInUser {
     email: string,
@@ -98,6 +99,36 @@ export async function signUp(signUpUserData: NewUserFormData): Promise<APIReques
 
         return {
             ok: true
+        }
+
+    } catch (error) {
+        return {
+            ok: false,
+            error: error
+        }
+    }
+}
+
+export async function getUserByUsername(username: string): Promise<APIRequestFunctionReturnType> {
+    try {    
+        const response = await apiFetch(`/users/${username}`, {
+            method: "GET",
+            headers: {
+                "Content-Type":"application/json"
+            },
+            credentials: "include",
+        })
+        
+        if (!response.ok) {
+            const errorResponse: string = await response.text()
+            throw new HttpError(errorResponse)
+        }
+
+        const responseJSON: APIResponse = await response.json()
+        
+        return {
+            ok: true,
+            response: responseJSON
         }
 
     } catch (error) {
