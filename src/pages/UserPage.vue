@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { followUser, unfollowUser } from '@/api/follows'
 import { getPostsByUsername } from '@/api/posts'
 import { getUserByUsername } from '@/api/users'
 import PostItem from '@/components/PostItem.vue'
@@ -27,7 +28,7 @@ async function getUserDataAndPost() {
     }
 
     try {
-        const [getUserResponse, getPostsResponse] = await Promise.all([getUserByUsername(props.username), getPostsByUsername(props.username) ])
+        const [getUserResponse, getPostsResponse] = await Promise.all([getUserByUsername(props.username), getPostsByUsername(props.username)])
 
 
         if (!getUserResponse.ok) {
@@ -38,15 +39,15 @@ async function getUserDataAndPost() {
             throw getPostsResponse.error
         }
 
-        if(!getUserResponse.response || !getPostsResponse.response) {
-            throw new Error("empty response")    
+        if (!getUserResponse.response || !getPostsResponse.response) {
+            throw new Error("empty response")
         }
 
         const userData: UserData = getUserResponse.response.data
         user.value = userData
         followed.value = userData.followed
         posts.value = getPostsResponse.response.data
-        
+
     } catch (error) {
         if (error instanceof HttpError) {
             alert(error.message)
@@ -59,53 +60,33 @@ async function getUserDataAndPost() {
 
 getUserDataAndPost()
 
-async function followHandler() {
-    let requestBody = {
-        followed_id: user.value?.id
+async function followButtonHandler() {
+    if (!user.value) {
+        return
     }
 
-    if (followed.value == false) {
-        try {
+    try {
+        if (followed.value == false) {
+            const followResponse = await followUser(user.value.id)
+
+            if (!followResponse.ok) {
+                throw followResponse.error
+            }
             followed.value = true
+        } else {
+            const unfollowResponse = await unfollowUser(user.value.id)
 
-            const url = `http://localhost:8000/follow`
-
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                credentials: "include",
-                body: JSON.stringify(requestBody)
-            })
-
-            if (!response.ok) {
-                throw new Error("something went wrong")
+            if (!unfollowResponse.ok) {
+                throw unfollowResponse.error
             }
-
-        } catch (error) {
-            console.log(error)
-        }
-    } else {
-        try {
             followed.value = false
-
-            const url = `http://localhost:8000/follow`
-
-            const response = await fetch(url, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                credentials: "include",
-                body: JSON.stringify(requestBody)
-            })
-
-            if (!response.ok) {
-                throw new Error("something went wrong")
-            }
-        } catch (error) {
+        }
+    } catch (error) {
+        if (error instanceof HttpError) {
+            alert(error.message)
+        } else {
             console.log(error)
+            alert(unknownErrorMessage)
         }
     }
 
@@ -118,8 +99,8 @@ async function followHandler() {
         <p>{{ user?.username }}</p>
         <p>{{ user?.created_at }}</p>
         <div v-if="user && loggedInUser && user.username != loggedInUser.username">
-            <button v-if="followed" class="border-2 cursor-pointer" @click.stop="followHandler">followed</button>
-            <button v-else class="border-2 cursor-pointer" @click.stop="followHandler">follow</button>
+            <button v-if="followed" class="border-2 cursor-pointer" @click.stop="followButtonHandler">followed</button>
+            <button v-else class="border-2 cursor-pointer" @click.stop="followButtonHandler">follow</button>
         </div>
     </section>
     <br>
