@@ -4,6 +4,8 @@ export interface UserData {
     email: string,
     created_at: string
     followed: boolean
+    following_count: number,
+    follower_count: number,
 }
 
 export interface OtherUserData {

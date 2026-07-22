@@ -7,7 +7,6 @@ import { loggedInUserKey } from '@/config/injectionKeys'
 import { HttpError } from '@/errors/http-error'
 import { unknownErrorMessage } from '@/errors/unknown-error'
 import type { Post } from '@/types/post'
-import type { APIResponse } from '@/types/responseJson'
 import type { UserData } from '@/types/user'
 import { inject, ref, type Ref } from 'vue'
 
@@ -97,6 +96,8 @@ async function followButtonHandler() {
     <section>
         <RouterLink to="/home">Back</RouterLink>
         <p>{{ user?.username }}</p>
+        <p>Following: {{ user?.following_count }}</p>
+        <p>Follower: {{ user?.follower_count }}</p>
         <p>{{ user?.created_at }}</p>
         <div v-if="user && loggedInUser && user.username != loggedInUser.username">
             <button v-if="followed" class="border-2 cursor-pointer" @click.stop="followButtonHandler">followed</button>
