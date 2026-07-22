@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createPostComment, getPostComments } from '@/api/comments';
+import { createPostComment, deletePostComment, getPostComments } from '@/api/comments';
 import { likePost, unlikePost } from '@/api/post-likes';
 import { getPostById } from '@/api/posts';
 import { loggedInUserKey } from '@/config/injectionKeys';
@@ -128,24 +128,20 @@ async function deleteCommentHandler(commentId: number) {
         return
     }
     try {
-        const url = `http://localhost:8000/comments/${commentId}`
+        const deleteCommentResponse = await deletePostComment(commentId)
 
-        const response = await fetch(url, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-        })
-
-        if (!response.ok) {
-            throw new Error("something went wrong")
+        if (!deleteCommentResponse.ok) {
+            throw deleteCommentResponse.error
         }
         alert("comment deleted")
 
     } catch (error) {
-        console.log(error)
-        alert("failed to delete comment")
+        if (error instanceof HttpError) {
+            alert(error.message)
+        } else {
+            console.log(error)
+            alert(unknownErrorMessage)
+        }
     }
 }
 
