@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getPostComments } from '@/api/comments';
+import { createPostComment, getPostComments } from '@/api/comments';
 import { likePost, unlikePost } from '@/api/post-likes';
 import { getPostById } from '@/api/posts';
 import { loggedInUserKey } from '@/config/injectionKeys';
@@ -101,28 +101,25 @@ async function likeHandler() {
 
 const createCommentContent = ref("")
 async function createComment() {
+    if (!post.value) {
+        return
+    }
     try {
-        let url = `http://localhost:8000/posts/${post.value?.id}/comments`
+        const createCommentResponse = await createPostComment(post.value.id, createCommentContent.value)
 
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-            body: JSON.stringify({
-                "content": createCommentContent.value
-            })
-        })
-
-        if (!response.ok) {
-            throw new Error("something went wrong")
+        if (!createCommentResponse.ok) {
+            throw createCommentResponse.error
         }
+
         alert("comment created")
         createCommentContent.value = ""
     } catch (error) {
-        console.log(error)
-        alert("create post failed")
+        if (error instanceof HttpError) {
+            alert(error.message)
+        } else {
+            console.log(error)
+            alert(unknownErrorMessage)
+        }
     }
 }
 
