@@ -1,17 +1,17 @@
 <script setup lang="ts">
+import { getPostComments } from '@/api/comments';
 import { likePost, unlikePost } from '@/api/post-likes';
+import { getPostById } from '@/api/posts';
 import { loggedInUserKey } from '@/config/injectionKeys';
 import { HttpError } from '@/errors/http-error';
 import { unknownErrorMessage } from '@/errors/unknown-error';
 import type { Post } from '@/types/post';
 import type { PostComment } from '@/types/postComment';
-import type { APIResponse } from '@/types/responseJson';
-import type { UserData } from '@/types/user';
 import { inject, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const props = defineProps({
-    postId: String,
+    postId: Number,
 })
 
 const router = useRouter()
@@ -25,43 +25,37 @@ const postLikeCount = ref(0)
 
 
 async function getPostAndComments() {
+    if (!props.postId) {
+        return 
+    }
+    
     try {
-        let getPostUrl = `http://localhost:8000/posts/${props.postId}`
-        let getPostCommentsUrl = `http://localhost:8000/posts/${props.postId}/comments`
+        const [getPostResponse, getPostCommentsResponse] = await Promise.all([getPostById(props.postId), getPostComments(props.postId)])
 
-        const getPostFetch = fetch(getPostUrl, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-        })
-
-        const getPostCommentsFetch = fetch(getPostCommentsUrl, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-        })
-
-        const [getPostResponse, getPostCommentsResponse] = await Promise.all([getPostFetch, getPostCommentsFetch])
-
-        if (!getPostResponse.ok || !getPostCommentsResponse.ok) {
-            throw new Error("something went wrong")
+        if (!getPostResponse.ok) {
+            throw getPostResponse.error
         }
 
-        const postResponseJson: APIResponse = await getPostResponse.json()
-        const commentsResponseJson: APIResponse = await getPostCommentsResponse.json()
-        const PostData: Post = postResponseJson.data
+        if (!getPostCommentsResponse.ok) {
+            throw getPostCommentsResponse.error
+        }
 
+        if (!getPostResponse.response || !getPostCommentsResponse.response) {
+            throw new Error("empty response")
+        }
+
+        const PostData: Post = getPostResponse.response.data
         post.value = PostData
-        comments.value = commentsResponseJson.data
+        comments.value = getPostCommentsResponse.response.data
         postLikes.value = PostData.liked
         postLikeCount.value = PostData.like_count
-
     } catch (error) {
-        console.log(error)
+        if (error instanceof HttpError) {
+            alert(error.message)
+        } else {
+            console.log(error)
+            alert(unknownErrorMessage)
+        }
     }
 }
 
