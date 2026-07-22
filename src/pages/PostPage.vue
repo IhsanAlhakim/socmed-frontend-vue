@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { likePost, unlikePost } from '@/api/post-likes';
 import { loggedInUserKey } from '@/config/injectionKeys';
+import { HttpError } from '@/errors/http-error';
+import { unknownErrorMessage } from '@/errors/unknown-error';
 import type { Post } from '@/types/post';
 import type { PostComment } from '@/types/postComment';
 import type { APIResponse } from '@/types/responseJson';
@@ -65,48 +68,38 @@ async function getPostAndComments() {
 getPostAndComments()
 
 async function likeHandler() {
-    if (postLikes.value == false) {
-        try {
+    if(!post.value) {
+        alert("post no available")
+        return
+    }
+
+    try {
+        if (postLikes.value == false) {
+
+            const likePostResponse = await likePost(post.value.id)
+
+            if (!likePostResponse.ok) {
+                throw likePostResponse.error
+            }
             postLikes.value = true
             postLikeCount.value = postLikeCount.value + 1
 
-            const url = `http://localhost:8000/posts/${post.value?.id}/likes`
+        } else {
+            const unlikePostResponse = await unlikePost(post.value.id)
 
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                credentials: "include",
-            })
-
-            if (!response.ok) {
-                throw new Error("something went wrong")
+            if (!unlikePostResponse.ok) {
+                throw unlikePostResponse.error
             }
 
-        } catch (error) {
-            console.log(error)
-        }
-    } else {
-        try {
             postLikes.value = false
             postLikeCount.value = postLikeCount.value - 1
-
-            const url = `http://localhost:8000/posts/${post.value?.id}/likes`
-
-            const response = await fetch(url, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                credentials: "include",
-            })
-
-            if (!response.ok) {
-                throw new Error("something went wrong")
-            }
-        } catch (error) {
+        }
+    } catch (error) {
+        if (error instanceof HttpError) {
+            alert(error.message)
+        } else {
             console.log(error)
+            alert(unknownErrorMessage)
         }
     }
 
