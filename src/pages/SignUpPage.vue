@@ -2,6 +2,7 @@
 import { signUp, type NewUserFormData } from '@/api/users';
 import { HttpError } from '@/errors/http-error';
 import { unknownErrorMessage } from '@/errors/unknown-error';
+import { signUpSchema } from '@/validation/validation';
 import { ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -16,7 +17,19 @@ const router = useRouter()
 
 async function signUpFormHandler() {
     if (newUser.value.password !== newUser.value.confirmPassword) {
-        alert("password does not match")
+        alert("passwords do not match, please retype your password")
+        return
+    }
+
+    const validationResult = signUpSchema.safeParse({
+        email:newUser.value.email,
+        username:newUser.value.username,
+        password:newUser.value.password
+    })
+
+    if(!validationResult.success) {
+        const errorMessages = validationResult.error.issues.map(issue => issue.message)
+        alert(errorMessages)
         return
     }
 
