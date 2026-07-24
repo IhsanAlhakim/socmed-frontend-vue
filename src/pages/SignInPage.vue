@@ -2,6 +2,7 @@
 import { signIn, type SignInUser } from '@/api/users';
 import { HttpError } from '@/errors/http-error';
 import { unknownErrorMessage } from '@/errors/unknown-error';
+import { signInSchema } from '@/validation/validation';
 import { ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -13,6 +14,17 @@ const signInUser: Ref<SignInUser> = ref({
 })
 
 async function signInFormHandler(){
+    const validationResult = signInSchema.safeParse({
+        email:signInUser.value.email,
+        password:signInUser.value.password
+    })
+
+    if(!validationResult.success) {
+        const errorMessages = validationResult.error.issues.map(issue => issue.message)
+        alert(errorMessages)
+        return
+    }
+
     try {
         const signInResponse = await signIn({
             email: signInUser.value.email,
