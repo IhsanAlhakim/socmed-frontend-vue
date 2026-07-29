@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { signIn, type SignInUser } from '@/api/users';
 import FormInputBox from '@/components/FormInputBox.vue';
+import SignInUpMain from '@/components/SignInUpMain.vue';
 import { HttpError } from '@/errors/http-error';
 import { signInSchema } from '@/validation/validation';
 import { CircleX } from '@lucide/vue';
@@ -59,7 +60,7 @@ async function signInFormHandler() {
 </script>
 
 <template>
-    <main class="w-full h-dvh grid grid-cols-5 bg-[#030712] text-white">
+    <SignInUpMain>
         <section class="flex col-span-2 items-center p-10 border-r-2">
             <div class="flex flex-col gap-2 w-full h-fit">
                 <h2 class="text-right text-5xl font-bold">Sign in to Socmed</h2>
@@ -71,17 +72,25 @@ async function signInFormHandler() {
                 <!-- <FormInputBoxUnderHood title="Email" type="email" name="email" :model-value="signInUser.email" @update:model-value="val => (signInUser.email = val)" /> -->
                 <FormInputBox title="Email" name="email" v-model="signInUser.email" />
                 <FormInputBox title="Password" type="password" name="password" v-model="signInUser.password" />
-                <div v-if="errorMessage" @click="() => errorMessage = undefined"  class="flex gap-2 border-2 px-3 py-2 rounded-md border-red-500 my-2 cursor-pointer"><CircleX color="#f56565"/><p>{{ errorMessage }}</p></div>
-                <div class="flex justify-end">                    
-                        <button type="submit" :disabled="isLoading" class="px-4 py-2 rounded-full font-semibold cursor-pointer" :class="[isLoading ? 'bg-gray-700' : 'bg-sky-700 hover:bg-sky-500']">
-                            <p v-if="isLoading">Signing In...</p>
-                            <p v-else>Sign In</p>
-                        </button>
+                <div v-if="errorMessage" @click="() => errorMessage = undefined"
+                    class="flex gap-2 border-2 px-3 py-2 rounded-md border-red-500 my-2 cursor-pointer">
+                    <CircleX color="#f56565" />
+                    <p>{{ errorMessage }}</p>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" :disabled="isLoading"
+                        class="px-4 py-2 rounded-full font-semibold cursor-pointer"
+                        :class="[isLoading ? 'bg-gray-700' : 'bg-sky-700 hover:bg-sky-500']">
+                        <p v-if="isLoading">Signing In...</p>
+                        <p v-else>Sign In</p>
+                    </button>
                 </div>
             </form>
             <div class="w-130 mt-2 text-center">
-                <p>New to Socmed? <RouterLink to="/signup" class="text-blue-500 hover:text-blue-700">Create an account</RouterLink></p>
+                <p>New to Socmed? <RouterLink to="/signup" class="text-blue-500 hover:text-blue-700">Create an account
+                    </RouterLink>
+                </p>
             </div>
         </section>
-    </main>
+    </SignInUpMain>
 </template>
