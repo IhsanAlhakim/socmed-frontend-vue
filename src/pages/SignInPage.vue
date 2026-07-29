@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { signIn, type SignInUser } from '@/api/users';
+import Button from '@/components/Button.vue';
 import FormErrorMessage from '@/components/FormErrorMessage.vue';
 import FormInputBox from '@/components/FormInputBox.vue';
 import SignInUpMain from '@/components/SignInUpMain.vue';
@@ -76,12 +77,10 @@ async function signInFormHandler() {
                     {{ errorMessage }}
                 </FormErrorMessage>
                 <div class="flex justify-end">
-                    <button type="submit" :disabled="isLoading"
-                        class="px-4 py-2 rounded-full font-semibold cursor-pointer"
-                        :class="[isLoading ? 'bg-gray-700' : 'bg-sky-700 hover:bg-sky-500']">
+                    <Button type="submit" :is-disabled="isLoading" :class="[isLoading ? 'bg-gray-700' : 'bg-sky-700 hover:bg-sky-500']">
                         <p v-if="isLoading">Signing In...</p>
                         <p v-else>Sign In</p>
-                    </button>
+                    </Button>
                 </div>
             </form>
             <div class="w-130 mt-2 text-center">
