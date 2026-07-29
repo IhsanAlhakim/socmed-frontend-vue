@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { signIn, type SignInUser } from '@/api/users';
+import FormErrorMessage from '@/components/FormErrorMessage.vue';
 import FormInputBox from '@/components/FormInputBox.vue';
 import SignInUpMain from '@/components/SignInUpMain.vue';
 import { HttpError } from '@/errors/http-error';
 import { signInSchema } from '@/validation/validation';
-import { CircleX } from '@lucide/vue';
 import { ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -72,11 +72,9 @@ async function signInFormHandler() {
                 <!-- <FormInputBoxUnderHood title="Email" type="email" name="email" :model-value="signInUser.email" @update:model-value="val => (signInUser.email = val)" /> -->
                 <FormInputBox title="Email" name="email" v-model="signInUser.email" />
                 <FormInputBox title="Password" type="password" name="password" v-model="signInUser.password" />
-                <div v-if="errorMessage" @click="() => errorMessage = undefined"
-                    class="flex gap-2 border-2 px-3 py-2 rounded-md border-red-500 my-2 cursor-pointer">
-                    <CircleX color="#f56565" />
-                    <p>{{ errorMessage }}</p>
-                </div>
+                <FormErrorMessage v-if="errorMessage" @click="() => errorMessage = undefined">
+                    {{ errorMessage }}
+                </FormErrorMessage>
                 <div class="flex justify-end">
                     <button type="submit" :disabled="isLoading"
                         class="px-4 py-2 rounded-full font-semibold cursor-pointer"
