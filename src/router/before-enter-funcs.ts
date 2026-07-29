@@ -18,12 +18,7 @@ export async function beforeEnterRoot(to: RouteLocationNormalizedGeneric, from: 
         localStorage.setItem("userObj", JSON.stringify(getLoggedInUserResponse.response.data))
 
     } catch (error) {
-        if (error instanceof HttpError) {
-            alert(error.message)
-        } else {
-            console.log(error)
-            alert(unknownErrorMessage)
-        }
+        console.log(error)
         localStorage.removeItem("userObj")
         return { path: "/signin" }
     }

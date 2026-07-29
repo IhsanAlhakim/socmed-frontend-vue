@@ -1,6 +1,6 @@
 <script setup lang="ts">
 interface Props {
-    type: string
+    type?: string
     name: string
     title: string
 }
@@ -13,6 +13,6 @@ const model = defineModel()
 <template>
 <div class="flex flex-col gap-1">
     <label :for="name">{{ title }}</label>
-    <input :type="type" required :name="name" v-model="model" class="w-130 h-10 px-3 py-1 border-2 rounded-md">
+    <input :type="type ? type : `text`" required :name="name" v-model="model" autocomplete="off" class="w-130 h-10 px-3 py-1 border-2 rounded-md">
 </div>
 </template>
