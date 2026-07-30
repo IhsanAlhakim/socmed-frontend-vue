@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { signUp, type NewUserFormData } from '@/api/users';
+import Button from '@/components/Button.vue';
+import FormErrorMessage from '@/components/FormErrorMessage.vue';
+import FormInputBox from '@/components/FormInputBox.vue';
+import SignInUpMain from '@/components/SignInUpMain.vue';
 import { HttpError } from '@/errors/http-error';
-import { unknownErrorMessage } from '@/errors/unknown-error';
 import { signUpSchema } from '@/validation/validation';
 import { ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { toast } from 'vue-sonner';
 
 const newUser: Ref<NewUserFormData> = ref({
     email: "",
@@ -15,21 +19,25 @@ const newUser: Ref<NewUserFormData> = ref({
 
 const router = useRouter()
 
+const errorMessage: Ref<undefined | string> = ref(undefined)
+const isLoading = ref(false)
+
+
 async function signUpFormHandler() {
     if (newUser.value.password !== newUser.value.confirmPassword) {
-        alert("passwords do not match, please retype your password")
+        errorMessage.value = "passwords do not match, please retype your password"
         return
     }
 
     const validationResult = signUpSchema.safeParse({
-        email:newUser.value.email,
-        username:newUser.value.username,
-        password:newUser.value.password
+        email: newUser.value.email,
+        username: newUser.value.username,
+        password: newUser.value.password
     })
 
-    if(!validationResult.success) {
+    if (!validationResult.success) {
         const errorMessages = validationResult.error.issues.map(issue => issue.message)
-        alert(errorMessages)
+        errorMessage.value = errorMessages[0]
         return
     }
 
@@ -44,16 +52,19 @@ async function signUpFormHandler() {
             throw signUpResponse.error
         }
 
-        alert("user created")
+        toast.success('Your account has been successfully created', {
+            action: {
+                label: 'Close'
+            }
+        })
 
         router.push("/signin")
-
     } catch (error) {
         if (error instanceof HttpError) {
-            alert(error.message)
+            errorMessage.value = error.message
         } else {
             console.log(error)
-            alert(unknownErrorMessage)
+            errorMessage.value = "An unexpected error occurred: " + error
         }
     }
 }
@@ -61,26 +72,34 @@ async function signUpFormHandler() {
 </script>
 
 <template>
-    <RouterLink to="/signin">Back</RouterLink>
-    <h2>Sign Up</h2>
-    <form @submit.prevent="signUpFormHandler">
-        <div>
-            <label for="email">Email</label>
-            <input type="email" required name="email" v-model="newUser.email">
-        </div>
-        <div>
-            <label for="username">Username</label>
-            <input type="text" required name="username" v-model="newUser.username">
-        </div>
-        <div>
-            <label for="password">Password</label>
-            <input type="password" required name="password" v-model="newUser.password">
-        </div>
-        <div>
-            <label for="confirm_password">Confirm Password</label>
-            <input type="password" required name="confirm_password" v-model="newUser.confirmPassword">
-        </div>
-        <button>Sign Up</button>
-    </form>
-    <RouterLink to="/signin">Already have an account</RouterLink>
+    <SignInUpMain>
+        <section class="flex col-span-2 items-center p-10 border-r-2">
+            <div class="flex flex-col gap-2 w-full h-fit">
+                <h2 class="text-right text-5xl font-bold">Create your Socmed account</h2>
+                <p class="text-right text-lg font-semibold">Sign up to interact with your friends</p>
+            </div>
+        </section>
+        <section class="flex flex-col col-span-3 justify-center p-10">
+            <form @submit.prevent="signUpFormHandler" class="w-130 flex flex-col gap-3">
+                <FormErrorMessage v-if="errorMessage" @click="() => errorMessage = undefined">
+                    {{ errorMessage }}
+                </FormErrorMessage>
+                <FormInputBox title="Email" name="email" v-model="newUser.email" />
+                <FormInputBox title="Username" name="username" v-model="newUser.username" />
+                <FormInputBox title="Password" type="password" name="password" v-model="newUser.password" />
+                <FormInputBox title="Confirm Your Password" type="password" name="confirm_password"
+                    v-model="newUser.confirmPassword" />
+                <div class="flex justify-between">
+                    <Button type="button" class="bg-gray-700 hover:bg-gray-500">
+                        <RouterLink to="/signin">Back</RouterLink>
+                    </Button>
+                    <Button type="submit" :is-disabled="isLoading"
+                        :class="[isLoading ? 'bg-gray-700' : 'bg-sky-700 hover:bg-sky-500']">
+                        <p v-if="isLoading">Creating your account...</p>
+                        <p v-else>Create account</p>
+                    </Button>
+                </div>
+            </form>
+        </section>
+    </SignInUpMain>
 </template>
