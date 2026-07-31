@@ -4,12 +4,14 @@ interface Props {
     isDisabled?: boolean
 }
 
+const emit = defineEmits(['click'])
+
 const props = defineProps<Props>()
 
 </script>
 
 <template>
-    <button :type="type" :disabled="isDisabled" class="px-4 py-2 rounded-full font-semibold cursor-pointer">
+    <button :type="type" :disabled="isDisabled" @click="emit('click')" class="px-4 py-2 rounded-full font-semibold cursor-pointer">
         <slot/>
     </button>
 </template>
