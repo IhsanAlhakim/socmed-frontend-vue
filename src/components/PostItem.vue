@@ -5,8 +5,10 @@ import { loggedInUserKey } from '@/config/injectionKeys';
 import { HttpError } from '@/errors/http-error';
 import { unknownErrorMessage } from '@/errors/unknown-error';
 import type { Post } from '@/types/post';
+import { Heart, MessageCircle } from '@lucide/vue';
 import { inject, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import Button from './Button.vue';
 
 interface Props {
     post: Post
@@ -17,7 +19,7 @@ const postLikes = ref(props.post.liked)
 const postLikeCount = ref(props.post.like_count)
 const router = useRouter()
 const loggedInUser = inject(loggedInUserKey)
-
+const isLoading = ref(false)
 
 async function likeHandler() {
     try {
@@ -48,8 +50,7 @@ async function likeHandler() {
             console.log(error)
             alert(unknownErrorMessage)
         }
-    }
-
+    } 
 }
 
 async function deletePostHandler() {
@@ -63,6 +64,7 @@ async function deletePostHandler() {
     }
 
     try {
+        isLoading.value = true
         const deletePostResponse = await deletePost(props.post.id)
 
         if (!deletePostResponse.ok) {
@@ -78,21 +80,35 @@ async function deletePostHandler() {
             console.log(error)
             alert(unknownErrorMessage)
         }
+    } finally {
+        isLoading.value = false
     }
 }
 
 </script>
 <template>
-    <div class="mb-4 cursor-pointer" @click="router.push({ path: `/p/${post.id}` })">
-        <button v-if="loggedInUser && loggedInUser.id === post.user_id" class="border-2 cursor-pointer bg-red-500"
-            @click.stop="deletePostHandler">Delete Post</button>
-        <p @click.stop="router.push({ path: `/u/${post.creator}` })">{{ post.creator }}</p>
-        <p>{{ post.content }}</p>
-        <div class="flex">
-            <button v-if="postLikes" class="border-2 cursor-pointer" @click.stop="likeHandler">liked</button>
-            <button v-else class="border-2 cursor-pointer" @click.stop="likeHandler">like</button>
-            <p>: {{ postLikeCount }}</p>
+    <div class="flex flex-col gap-5 border-b p-5 cursor-pointer hover:bg-[#091536] transition-all" @click="router.push({ path: `/p/${post.id}` })">
+        <div class="flex justify-between items-center">
+            <p @click.stop="router.push({ path: `/u/${post.creator}` })" class="hover:underline transition-all">{{ post.creator }}</p>
+            <Button v-if="loggedInUser && loggedInUser.id === post.user_id" @click.stop="deletePostHandler" class="border-2 cursor-pointer text-sm" :class="[isLoading ? 'bg-gray-700' : 'bg-red-700 hover:bg-red-500 transition-all']">Delete</Button>
         </div>
-        <p>comment : {{ post.comment_count }}</p>
+        <div>
+            <p>{{ post.content }}</p>
+        </div>
+        <div class="flex gap-10">
+            <div class="flex gap-1 p-0.5 rounded-md hover:bg-slate-50/20 transition-all">
+                <button v-if="postLikes" class="cursor-pointer" @click.stop="likeHandler">
+                    <Heart :size="18" fill="#FF0000" />
+                </button>
+                <button v-else class="cursor-pointer" @click.stop="likeHandler">
+                    <Heart :size="18" />
+                </button>
+                <p>{{ postLikeCount }}</p>
+            </div class="flex gap-1">
+            <div class="flex gap-1 items-center">
+                <MessageCircle :size="18" />
+                <p>{{ post.comment_count }}</p>
+            </div>
+        </div>
     </div>
 </template>

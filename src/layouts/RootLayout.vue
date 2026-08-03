@@ -45,7 +45,7 @@ async function signOutButtonHandler() {
 </script>
 
 <template>
-    <div class="relative w-full grid grid-cols-[25%_75%] bg-[#030712] text-white">
+    <div class="relative w-full grid grid-cols-[25%_50%_25%] bg-[#030712] text-white">
         <aside class="fixed w-[25%] h-dvh border-r">
             <div class="h-full flex flex-col py-5 pl-15 pr-10">
                 <h1 class="text-4xl font-bold">Socmed</h1>
@@ -61,8 +61,13 @@ async function signOutButtonHandler() {
         </aside>
         <!-- Div untuk mengisi posisi aside yang fixed -->
         <div></div> 
-        <main class="">
+        <!-- Div untuk mengisi posisi aside yang fixed -->
+        <main class="min-h-dvh">
             <RouterView />
         </main>
+         <!-- Div untuk mengisi posisi aside yang fixed -->
+        <div></div> 
+        <!-- Div untuk mengisi posisi aside yang fixed -->
+        <aside class="right-0 fixed w-[25%] h-dvh border-l"></aside>
     </div>
 </template>

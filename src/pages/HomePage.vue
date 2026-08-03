@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { createPost, getPost } from '@/api/posts';
+import Button from '@/components/Button.vue';
 import PostItem from '@/components/PostItem.vue';
 import { HttpError } from '@/errors/http-error';
 import { unknownErrorMessage } from '@/errors/unknown-error';
@@ -7,9 +8,11 @@ import type { Post } from '@/types/post';
 import { ref, type Ref } from 'vue';
 
 const postContent: Ref<string> = ref("")
+const isLoading = ref(false)
 
 async function createPostFormHandler() {
     try {
+        isLoading.value = true
         const createPostResponse = await createPost(postContent.value)
 
         if (!createPostResponse.ok) {
@@ -20,12 +23,14 @@ async function createPostFormHandler() {
 
         postContent.value = ""
     } catch (error) {
-       if (error instanceof HttpError) {
+        if (error instanceof HttpError) {
             alert(error.message)
         } else {
             console.log(error)
             alert(unknownErrorMessage)
-        } 
+        }
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -42,12 +47,12 @@ async function getPostsHandler() {
         posts.value = getPostsResponse.response?.data
 
     } catch (error) {
-       if (error instanceof HttpError) {
+        if (error instanceof HttpError) {
             alert(error.message)
         } else {
             console.log(error)
             alert(unknownErrorMessage)
-        } 
+        }
     }
 }
 
@@ -55,12 +60,15 @@ getPostsHandler()
 
 </script>
 <template>
+    <section class="text-center py-3 border-b">
+        <p class="font-bold">Discover</p>
+    </section>
     <section>
-        <form @submit.prevent="createPostFormHandler">
-            <div>
-                <textarea rows="5" cols="30" v-model="postContent" class="border-2"></textarea>
-            </div>
-            <button class="border-2 cursor-pointer">Post</button>
+        <form @submit.prevent="createPostFormHandler" class="border-b w-full flex flex-col p-3 gap-2">
+            <textarea v-model="postContent" placeholder="Start a post"
+                class="p-2 focus:outline-none w-full min-h-20 resize-none field-sizing-content" />
+            <Button type="submit" class="border-2 w-18.75 text-sm ml-auto"
+                :class="[isLoading ? 'bg-gray-700' : 'bg-sky-700 hover:bg-sky-500 transition-all']">Post</Button>
         </form>
     </section>
     <section>
