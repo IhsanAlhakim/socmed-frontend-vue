@@ -110,8 +110,8 @@ async function followButtonHandler() {
         <div class="flex gap-20 items-center">
             <p class="font-bold text-xl">{{ user?.username }}</p>
             <div v-if="user && loggedInUser && user.username != loggedInUser.username">
-            <Button v-if="followed" class="border-2 cursor-pointer bg-white text-black hover:bg-gray-500 transition-all" @click.stop="followButtonHandler">followed</Button>
-            <Button v-else class="border-2 cursor-pointer hover:bg-white/25 transition-all" @click.stop="followButtonHandler">follow</Button>
+            <Button v-if="followed" class="cursor-pointer bg-white text-black hover:bg-gray-500 transition-all" @click.stop="followButtonHandler">followed</Button>
+            <Button v-else class="cursor-pointer hover:bg-white/25 transition-all" @click.stop="followButtonHandler">follow</Button>
             </div>
         </div>
         <div class="flex gap-2 items-center">

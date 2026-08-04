@@ -67,7 +67,7 @@ getPostsHandler()
         <form @submit.prevent="createPostFormHandler" class="border-b w-full flex flex-col p-3 gap-2">
             <textarea v-model="postContent" placeholder="Start a post"
                 class="p-2 focus:outline-none w-full min-h-20 resize-none field-sizing-content" />
-            <Button type="submit" class="border-2 w-18.75 text-sm ml-auto"
+            <Button type="submit" class="w-18.75 text-sm ml-auto"
                 :class="[isLoading ? 'bg-gray-700' : 'bg-sky-700 hover:bg-sky-500 transition-all']">Post</Button>
         </form>
     </section>

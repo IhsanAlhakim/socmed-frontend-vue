@@ -90,7 +90,7 @@ async function deletePostHandler() {
     <div class="flex flex-col gap-5 border-b p-5 cursor-pointer hover:bg-[#091536] transition-all" @click="router.push({ path: `/p/${post.id}` })">
         <div class="flex justify-between items-center">
             <p @click.stop="router.push({ path: `/u/${post.creator}` })" class="hover:underline transition-all">{{ post.creator }}</p>
-            <Button v-if="loggedInUser && loggedInUser.id === post.user_id" @click.stop="deletePostHandler" class="border-2 cursor-pointer text-sm" :class="[isLoading ? 'bg-gray-700' : 'bg-red-700 hover:bg-red-500 transition-all']">Delete</Button>
+            <Button v-if="loggedInUser && loggedInUser.id === post.user_id" @click.stop="deletePostHandler" class="cursor-pointer text-sm" :class="[isLoading ? 'bg-gray-700' : 'bg-red-700 hover:bg-red-500 transition-all']">Delete</Button>
         </div>
         <div>
             <p>{{ post.content }}</p>
