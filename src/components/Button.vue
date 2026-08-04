@@ -11,7 +11,7 @@ const props = defineProps<Props>()
 </script>
 
 <template>
-    <button :type="type" :disabled="isDisabled" @click="emit('click', $event)" class="px-4 py-2 rounded-full font-semibold cursor-pointer">
+    <button :type="type" :disabled="isDisabled" @click="emit('click', $event)" class="px-3 py-1 rounded-full font-semibold cursor-pointer">
         <slot/>
     </button>
 </template>

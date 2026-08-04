@@ -2,13 +2,17 @@
 import { followUser, unfollowUser } from '@/api/follows'
 import { getPostsByUsername } from '@/api/posts'
 import { getUserByUsername } from '@/api/users'
+import Button from '@/components/Button.vue'
 import PostItem from '@/components/PostItem.vue'
 import { loggedInUserKey } from '@/config/injectionKeys'
 import { HttpError } from '@/errors/http-error'
 import { unknownErrorMessage } from '@/errors/unknown-error'
 import type { Post } from '@/types/post'
 import type { UserData } from '@/types/user'
+import { getJoinedDate } from '@/utils/date'
+import { Calendar, MoveLeft } from '@lucide/vue'
 import { inject, ref, type Ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
     username: String,
@@ -17,9 +21,9 @@ const props = defineProps({
 const user: Ref<UserData | null> = ref(null)
 const posts: Ref<Post[] | null> = ref(null)
 const followed: Ref<boolean> = ref(false)
-
 const loggedInUser = inject(loggedInUserKey)
 
+const router = useRouter()
 
 async function getUserDataAndPost() {
     if (!props.username) {
@@ -93,20 +97,38 @@ async function followButtonHandler() {
 
 </script>
 <template>
-    <section>
-        <RouterLink to="/home">Back</RouterLink>
-        <p>{{ user?.username }}</p>
-        <p>Following: {{ user?.following_count }}</p>
-        <p>Follower: {{ user?.follower_count }}</p>
-        <p>{{ user?.created_at }}</p>
-        <div v-if="user && loggedInUser && user.username != loggedInUser.username">
-            <button v-if="followed" class="border-2 cursor-pointer" @click.stop="followButtonHandler">followed</button>
-            <button v-else class="border-2 cursor-pointer" @click.stop="followButtonHandler">follow</button>
+    <div class="flex items-center border-b gap-5 px-5 py-2">
+        <button @click="router.back()" class="rounded-md p-1 hover:bg-white/25 transition-all">
+            <MoveLeft />
+        </button>
+        <div>
+            <p class="font-bold">{{ user?.username }}</p>
+            <p>{{ posts?.length }} posts</p>
+        </div>
+    </div>
+    <section class="flex flex-col gap-3 p-5 mb-5">
+        <div class="flex gap-20 items-center">
+            <p class="font-bold text-xl">{{ user?.username }}</p>
+            <div v-if="user && loggedInUser && user.username != loggedInUser.username">
+            <Button v-if="followed" class="border-2 cursor-pointer bg-white text-black hover:bg-gray-500 transition-all" @click.stop="followButtonHandler">followed</Button>
+            <Button v-else class="border-2 cursor-pointer hover:bg-white/25 transition-all" @click.stop="followButtonHandler">follow</Button>
+            </div>
+        </div>
+        <div class="flex gap-2 items-center">
+            <Calendar :size="16"/>
+            <p>Joined {{user ? getJoinedDate(user?.created_at): ""}}</p>
+        </div>
+        <div class="flex gap-5">
+            <p><span class="font-bold">{{ user?.following_count }}</span> following</p>
+            <p><span class="font-bold">{{ user?.follower_count }}</span> followers</p>
         </div>
     </section>
-    <br>
     <section>
-        <p>Posts</p>
-        <PostItem v-for="post in posts" :key="post.id" :post="post" />
+        <div class="border text-center p-3">
+            Posts
+        </div>
+        <div>
+            <PostItem v-for="post in posts" :key="post.id" :post="post" />
+        </div>
     </section>
 </template>
