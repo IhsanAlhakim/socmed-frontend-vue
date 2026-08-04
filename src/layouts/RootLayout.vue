@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { signOut } from '@/api/users'
 import Button from '@/components/Button.vue'
-import ShadButton from '@/components/ui/button/ShadButton.vue'
 import Dialog from '@/components/ui/dialog/Dialog.vue'
 import DialogClose from '@/components/ui/dialog/DialogClose.vue'
 import DialogContent from '@/components/ui/dialog/DialogContent.vue'

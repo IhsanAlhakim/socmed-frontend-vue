@@ -4,7 +4,6 @@ import Button from '@/components/Button.vue';
 import FormErrorMessage from '@/components/FormErrorMessage.vue';
 import FormInputBox from '@/components/FormInputBox.vue';
 import SignInUpMain from '@/components/SignInUpMain.vue';
-import ShadButton from '@/components/ui/button/ShadButton.vue';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
 import DialogContent from '@/components/ui/dialog/DialogContent.vue';
 import DialogDescription from '@/components/ui/dialog/DialogDescription.vue';
@@ -120,9 +119,9 @@ async function signUpFormHandler() {
                 </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-                <ShadButton class="bg-sky-700 hover:bg-sky-500">
+                <Button class="bg-sky-700 hover:bg-sky-500">
                     <RouterLink to="/signin">Go to Sign In Page</RouterLink>
-                </ShadButton>
+                </Button>
             </DialogFooter>
         </DialogContent>
     </Dialog>
