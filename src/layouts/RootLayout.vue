@@ -15,6 +15,7 @@ import type { UserData } from '@/types/user'
 import { Home } from '@lucide/vue'
 import { provide, ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { toast } from 'vue-sonner'
 
 const router = useRouter()
 const isLoading = ref(false)
@@ -45,7 +46,11 @@ async function signOutButtonHandler() {
         router.push("/signin")
     } catch (error) {
         console.log(error)
-        alert("signOut failed")
+        toast("Sign out failed, please try again later", {
+            action: {
+                label: "Close"
+            }
+        })
     } finally {
         isLoading.value = false
     }
@@ -55,7 +60,7 @@ async function signOutButtonHandler() {
 <template>
     <Dialog>
         <div class="relative w-full grid grid-cols-[25%_50%_25%] bg-[#030712] text-white">
-            <aside class="fixed w-[25%] h-dvh border-r">
+            <aside class="fixed w-[25%] h-dvh">
                 <div class="h-full flex flex-col py-5 pl-15 pr-10">
                     <h1 class="text-4xl font-bold">Socmed</h1>
                     <ul class="flex mt-5 text-2xl font-semibold items-center gap-5">
@@ -72,15 +77,15 @@ async function signOutButtonHandler() {
                 </div>
             </aside>
             <!-- Div untuk mengisi posisi aside yang fixed -->
-            <div></div>
+            <div class="border-r"></div>
             <!-- Div untuk mengisi posisi aside yang fixed -->
             <main class="min-h-dvh">
                 <RouterView />
             </main>
             <!-- Div untuk mengisi posisi aside yang fixed -->
-            <div></div>
+            <div class="border-l"></div>
             <!-- Div untuk mengisi posisi aside yang fixed -->
-            <aside class="right-0 fixed w-[25%] h-dvh border-l"></aside>
+            <aside class="right-0 fixed w-[25%] h-dvh"></aside>
         </div>
         <DialogContent class="bg-[#030712] text-white">
             <DialogHeader>

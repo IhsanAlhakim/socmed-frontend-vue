@@ -7,8 +7,9 @@ import 'vue-sonner/style.css'
 <template>
     <RouterView />
     <Toaster :toast-options="{
-        style: {color: '#030712'},
-        actionButtonStyle: {background: '#030712'}
+        
+        style: {background: '#030712' , color: '#ffffff'},
+        actionButtonStyle: {background: '#ffffff', color: '#030712'}
     }"/>
 </template>
 
