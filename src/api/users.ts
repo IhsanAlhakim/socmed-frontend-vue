@@ -1,4 +1,4 @@
-import { HttpError } from "@/errors/http-error"
+import { HttpError, statusInternalServerError } from "@/errors/http-error"
 import type { APIRequestFunctionReturnType } from "./types"
 import { unknownErrorMessage } from "@/errors/unknown-error"
 import { apiFetch } from "./client"
@@ -15,19 +15,19 @@ export async function signIn(signInUserData: SignInUser): Promise<APIRequestFunc
         password: signInUserData.password
     }
 
-    try {    
+    try {
         const response = await apiFetch("/sessions", {
             method: "POST",
             headers: {
-                "Content-Type":"application/json"
+                "Content-Type": "application/json"
             },
             credentials: "include",
             body: JSON.stringify(requestBody)
         })
-        
+
         if (!response.ok) {
             const errorResponse: string = await response.text()
-            throw new HttpError(errorResponse)
+            throw new HttpError(errorResponse, response.status)
         }
 
         return {
@@ -35,6 +35,13 @@ export async function signIn(signInUserData: SignInUser): Promise<APIRequestFunc
         }
 
     } catch (error) {
+        if (error instanceof HttpError) {
+            return {
+                ok: false,
+                error: error,
+                statusCode: error.statusCode
+            }
+        }
         return {
             ok: false,
             error: error
@@ -43,15 +50,15 @@ export async function signIn(signInUserData: SignInUser): Promise<APIRequestFunc
 }
 
 export async function signOut(): Promise<APIRequestFunctionReturnType> {
-    try {    
+    try {
         const response = await apiFetch("/sessions", {
             method: "DELETE",
             headers: {
-                "Content-Type":"application/json"
+                "Content-Type": "application/json"
             },
             credentials: "include",
         })
-        
+
         if (!response.ok) {
             throw new Error(unknownErrorMessage)
         }
@@ -81,17 +88,17 @@ export async function signUp(signUpUserData: NewUserFormData): Promise<APIReques
         username: signUpUserData.username,
         password: signUpUserData.password
     }
-    
-    try {    
+
+    try {
         const response = await apiFetch("/users", {
             method: "POST",
             headers: {
-                "Content-Type":"application/json"
+                "Content-Type": "application/json"
             },
             credentials: "include",
             body: JSON.stringify(requestBody)
         })
-        
+
         if (!response.ok) {
             const errorResponse: string = await response.text()
             throw new HttpError(errorResponse)
@@ -110,22 +117,22 @@ export async function signUp(signUpUserData: NewUserFormData): Promise<APIReques
 }
 
 export async function getLoggedInUser(): Promise<APIRequestFunctionReturnType> {
-    try {    
+    try {
         const response = await apiFetch("/users", {
             method: "GET",
             headers: {
-                "Content-Type":"application/json"
+                "Content-Type": "application/json"
             },
             credentials: "include",
         })
-        
+
         if (!response.ok) {
             const errorResponse: string = await response.text()
             throw new HttpError(errorResponse)
         }
 
         const responseJSON: APIResponse = await response.json()
-        
+
         return {
             ok: true,
             response: responseJSON
@@ -140,22 +147,22 @@ export async function getLoggedInUser(): Promise<APIRequestFunctionReturnType> {
 }
 
 export async function getUserByUsername(username: string): Promise<APIRequestFunctionReturnType> {
-    try {    
+    try {
         const response = await apiFetch(`/users/${username}`, {
             method: "GET",
             headers: {
-                "Content-Type":"application/json"
+                "Content-Type": "application/json"
             },
             credentials: "include",
         })
-        
+
         if (!response.ok) {
             const errorResponse: string = await response.text()
             throw new HttpError(errorResponse)
         }
 
         const responseJSON: APIResponse = await response.json()
-        
+
         return {
             ok: true,
             response: responseJSON

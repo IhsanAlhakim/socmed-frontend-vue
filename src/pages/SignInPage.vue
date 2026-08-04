@@ -4,7 +4,7 @@ import Button from '@/components/Button.vue';
 import FormErrorMessage from '@/components/FormErrorMessage.vue';
 import FormInputBox from '@/components/FormInputBox.vue';
 import SignInUpMain from '@/components/SignInUpMain.vue';
-import { HttpError } from '@/errors/http-error';
+import { HttpError, statusInternalServerError } from '@/errors/http-error';
 import { signInSchema } from '@/validation/validation';
 import { ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -46,11 +46,11 @@ async function signInFormHandler() {
 
         router.push("/home")
     } catch (error) {
-        if (error instanceof HttpError) {
+        if (error instanceof HttpError && error.statusCode != statusInternalServerError) {
             errorMessage.value = error.message
         } else {
             console.log(error)
-            errorMessage.value = "An unexpected error occurred: " + error
+            errorMessage.value = "An unexpected error occurred, please try again later "
         }
     } finally {
         isLoading.value = false
