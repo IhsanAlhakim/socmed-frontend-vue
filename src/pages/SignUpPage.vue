@@ -10,10 +10,9 @@ import DialogDescription from '@/components/ui/dialog/DialogDescription.vue';
 import DialogFooter from '@/components/ui/dialog/DialogFooter.vue';
 import DialogHeader from '@/components/ui/dialog/DialogHeader.vue';
 import DialogTitle from '@/components/ui/dialog/DialogTitle.vue';
-import { HttpError } from '@/errors/http-error';
+import { HttpError, statusInternalServerError } from '@/errors/http-error';
 import { signUpSchema } from '@/validation/validation';
 import { ref, type Ref } from 'vue';
-import { useRouter } from 'vue-router';
 
 const newUser: Ref<NewUserFormData> = ref({
     email: "",
@@ -22,7 +21,6 @@ const newUser: Ref<NewUserFormData> = ref({
     confirmPassword: "",
 })
 
-const router = useRouter()
 
 const errorMessage: Ref<undefined | string> = ref(undefined)
 const isLoading = ref(false)
@@ -65,11 +63,12 @@ async function signUpFormHandler() {
 
         isDialogOpen.value = true
     } catch (error) {
-        if (error instanceof HttpError) {
+        if (error instanceof HttpError && error.statusCode != statusInternalServerError) {
+            console.log(error.statusCode)
             errorMessage.value = error.message
         } else {
             console.log(error)
-            errorMessage.value = "An unexpected error occurred: " + error
+            errorMessage.value = "An unexpected error occurred, please try again later"
         }
     } finally {
         isLoading.value = false

@@ -101,7 +101,7 @@ export async function signUp(signUpUserData: NewUserFormData): Promise<APIReques
 
         if (!response.ok) {
             const errorResponse: string = await response.text()
-            throw new HttpError(errorResponse)
+            throw new HttpError(errorResponse, response.status)
         }
 
         return {
@@ -109,6 +109,13 @@ export async function signUp(signUpUserData: NewUserFormData): Promise<APIReques
         }
 
     } catch (error) {
+        if (error instanceof HttpError) {
+            return {
+                ok: false,
+                error: error,
+                statusCode: error.statusCode
+            }
+        }
         return {
             ok: false,
             error: error
