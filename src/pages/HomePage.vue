@@ -22,15 +22,23 @@ async function createPostFormHandler() {
             throw createPostResponse.error
         }
 
-        alert("post created")
+        toast("Post created!", {
+                action: {
+                    label: "Close"
+                }
+        })
 
         postContent.value = ""
     } catch (error) {
-        if (error instanceof HttpError) {
-            alert(error.message)
+        if (error instanceof HttpError && error.statusCode === statusUnauthorized) {
+            router.push("/signin")
         } else {
             console.log(error)
-            alert(unknownErrorMessage)
+            toast("Failed to create post, please try again later", {
+                action: {
+                    label: "Close"
+                }
+            })
         }
     } finally {
         isLoading.value = false
