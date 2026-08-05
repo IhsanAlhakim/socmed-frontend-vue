@@ -5,7 +5,7 @@ import { getUserByUsername } from '@/api/users'
 import Button from '@/components/Button.vue'
 import PostItem from '@/components/PostItem.vue'
 import { loggedInUserKey } from '@/config/injectionKeys'
-import { HttpError } from '@/errors/http-error'
+import { HttpError, statusInternalServerError, statusNotFound, statusUnauthorized } from '@/errors/http-error'
 import { unknownErrorMessage } from '@/errors/unknown-error'
 import type { Post } from '@/types/post'
 import type { UserData } from '@/types/user'
@@ -13,6 +13,7 @@ import { getJoinedDate } from '@/utils/date'
 import { Calendar, MoveLeft } from '@lucide/vue'
 import { inject, ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { toast } from 'vue-sonner'
 
 const props = defineProps({
     username: String,
@@ -27,12 +28,16 @@ const router = useRouter()
 
 async function getUserDataAndPost() {
     if (!props.username) {
+        toast("User account unavailable", {
+            action: {
+                label: "Close"
+            }
+        })
         return
     }
 
     try {
         const [getUserResponse, getPostsResponse] = await Promise.all([getUserByUsername(props.username), getPostsByUsername(props.username)])
-
 
         if (!getUserResponse.ok) {
             throw getUserResponse.error
@@ -52,11 +57,32 @@ async function getUserDataAndPost() {
         posts.value = getPostsResponse.response.data
 
     } catch (error) {
-        if (error instanceof HttpError) {
-            alert(error.message)
+        if (error instanceof HttpError && error.statusCode !== statusInternalServerError) {
+            if (error.statusCode === statusUnauthorized) {
+                router.push("/signin")
+                return
+            }
+            if (error.statusCode === statusNotFound) {
+                toast("User not found", {
+                    action: {
+                        label: "Close"
+                    }
+                })
+                return
+            }
+            console.log(error)
+            toast("Failed to load user page, please try again later", {
+                action: {
+                    label: "Close"
+                }
+            })
         } else {
             console.log(error)
-            alert(unknownErrorMessage)
+            toast("Failed to load user page, please try again later", {
+                action: {
+                    label: "Close"
+                }
+            })
         }
     }
 }
@@ -110,13 +136,15 @@ async function followButtonHandler() {
         <div class="flex gap-20 items-center">
             <p class="font-bold text-xl">{{ user?.username }}</p>
             <div v-if="user && loggedInUser && user.username != loggedInUser.username">
-            <Button v-if="followed" class="cursor-pointer bg-white text-black hover:bg-gray-500 transition-all" @click.stop="followButtonHandler">followed</Button>
-            <Button v-else class="cursor-pointer hover:bg-white/25 transition-all" @click.stop="followButtonHandler">follow</Button>
+                <Button v-if="followed" class="cursor-pointer bg-white text-black hover:bg-gray-500 transition-all"
+                    @click.stop="followButtonHandler">followed</Button>
+                <Button v-else class="cursor-pointer hover:bg-white/25 transition-all"
+                    @click.stop="followButtonHandler">follow</Button>
             </div>
         </div>
         <div class="flex gap-2 items-center">
-            <Calendar :size="16"/>
-            <p>Joined {{user ? getJoinedDate(user?.created_at): ""}}</p>
+            <Calendar :size="16" />
+            <p>Joined {{ user ? getJoinedDate(user?.created_at) : "" }}</p>
         </div>
         <div class="flex gap-5">
             <p><span class="font-bold">{{ user?.following_count }}</span> following</p>
