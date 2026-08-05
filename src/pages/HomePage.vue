@@ -3,7 +3,6 @@ import { createPost, getPost } from '@/api/posts';
 import Button from '@/components/Button.vue';
 import PostItem from '@/components/PostItem.vue';
 import { HttpError, statusUnauthorized } from '@/errors/http-error';
-import { unknownErrorMessage } from '@/errors/unknown-error';
 import type { Post } from '@/types/post';
 import { ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';

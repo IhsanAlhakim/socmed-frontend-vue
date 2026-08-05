@@ -2,13 +2,14 @@
 import { likePost, unlikePost } from '@/api/post-likes';
 import { deletePost } from '@/api/posts';
 import { loggedInUserKey } from '@/config/injectionKeys';
-import { HttpError } from '@/errors/http-error';
+import { HttpError, statusUnauthorized } from '@/errors/http-error';
 import { unknownErrorMessage } from '@/errors/unknown-error';
 import type { Post } from '@/types/post';
 import { Heart, MessageCircle } from '@lucide/vue';
 import { inject, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Button from './Button.vue';
+import { toast } from 'vue-sonner';
 
 interface Props {
     post: Post
@@ -44,11 +45,15 @@ async function likeHandler() {
             postLikeCount.value = postLikeCount.value - 1
         }
     } catch (error) {
-        if (error instanceof HttpError) {
-            alert(error.message)
+        if (error instanceof HttpError && error.statusCode === statusUnauthorized) {
+            router.push("/signin")
         } else {
             console.log(error)
-            alert(unknownErrorMessage)
+            toast("Something wrong happened, please try again later", {
+                action: {
+                    label: "Close"
+                }
+            })
         }
     } 
 }
