@@ -1,6 +1,4 @@
 import { getLoggedInUser } from "@/api/users"
-import { HttpError } from "@/errors/http-error"
-import { unknownErrorMessage } from "@/errors/unknown-error"
 import type { RouteLocationNormalizedGeneric, RouteLocationNormalizedLoadedGeneric } from "vue-router"
 
 export async function beforeEnterRoot(to: RouteLocationNormalizedGeneric, from: RouteLocationNormalizedLoadedGeneric) {

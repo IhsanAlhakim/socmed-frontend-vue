@@ -2,13 +2,16 @@
 import { createPost, getPost } from '@/api/posts';
 import Button from '@/components/Button.vue';
 import PostItem from '@/components/PostItem.vue';
-import { HttpError } from '@/errors/http-error';
+import { HttpError, statusUnauthorized } from '@/errors/http-error';
 import { unknownErrorMessage } from '@/errors/unknown-error';
 import type { Post } from '@/types/post';
 import { ref, type Ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { toast } from 'vue-sonner';
 
 const postContent: Ref<string> = ref("")
 const isLoading = ref(false)
+const router = useRouter()
 
 async function createPostFormHandler() {
     try {
@@ -47,11 +50,15 @@ async function getPostsHandler() {
         posts.value = getPostsResponse.response?.data
 
     } catch (error) {
-        if (error instanceof HttpError) {
-            alert(error.message)
+        if (error instanceof HttpError && error.statusCode === statusUnauthorized) {
+            router.push("/signin")
         } else {
             console.log(error)
-            alert(unknownErrorMessage)
+            toast("Failed to load posts, please try again later", {
+                action: {
+                    label: "Close"
+                }
+            })
         }
     }
 }
