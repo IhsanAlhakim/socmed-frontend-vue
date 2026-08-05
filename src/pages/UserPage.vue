@@ -6,7 +6,6 @@ import Button from '@/components/Button.vue'
 import PostItem from '@/components/PostItem.vue'
 import { loggedInUserKey } from '@/config/injectionKeys'
 import { HttpError, statusInternalServerError, statusNotFound, statusUnauthorized } from '@/errors/http-error'
-import { unknownErrorMessage } from '@/errors/unknown-error'
 import type { Post } from '@/types/post'
 import type { UserData } from '@/types/user'
 import { getJoinedDate } from '@/utils/date'
@@ -111,11 +110,15 @@ async function followButtonHandler() {
             followed.value = false
         }
     } catch (error) {
-        if (error instanceof HttpError) {
-            alert(error.message)
+        if (error instanceof HttpError && error.statusCode === statusUnauthorized) {
+            router.push("/signin")
         } else {
             console.log(error)
-            alert(unknownErrorMessage)
+            toast("Something wrong happened, please try again later", {
+                action: {
+                    label: "Close"
+                }
+            })
         }
     }
 
@@ -138,7 +141,7 @@ async function followButtonHandler() {
             <div v-if="user && loggedInUser && user.username != loggedInUser.username">
                 <Button v-if="followed" class="cursor-pointer bg-white text-black hover:bg-gray-500 transition-all"
                     @click.stop="followButtonHandler">followed</Button>
-                <Button v-else class="cursor-pointer hover:bg-white/25 transition-all"
+                <Button v-else class="cursor-pointer border hover:bg-white/25 transition-all"
                     @click.stop="followButtonHandler">follow</Button>
             </div>
         </div>
