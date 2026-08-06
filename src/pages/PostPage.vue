@@ -5,7 +5,7 @@ import { getPostById } from '@/api/posts';
 import Button from '@/components/Button.vue';
 import CommentItem from '@/components/CommentItem.vue';
 import { loggedInUserKey } from '@/config/injectionKeys';
-import { HttpError, statusInternalServerError, statusNotFound, statusUnauthorized } from '@/errors/http-error';
+import { HttpError, statusBadRequest, statusInternalServerError, statusNotFound, statusUnauthorized } from '@/errors/http-error';
 import { unknownErrorMessage } from '@/errors/unknown-error';
 import type { Post } from '@/types/post';
 import type { PostComment } from '@/types/postComment';
@@ -139,11 +139,18 @@ async function likeHandler() {
 const createCommentContent = ref("")
 
 async function createComment() {
-    if(!post.value) {
+    if (!post.value) {
+        toast("Post unavailable", {
+            action: {
+                label: "Close"
+            }
+        })
         return
     }
 
     try {
+
+        isLoading.value = true
         const createCommentResponse = await createPostComment(post.value.id, createCommentContent.value)
 
         if (!createCommentResponse.ok) {
@@ -157,12 +164,35 @@ async function createComment() {
         })
         createCommentContent.value = ""
     } catch (error) {
-        if (error instanceof HttpError) {
-            alert(error.message)
+        if (error instanceof HttpError && error.statusCode !== statusInternalServerError) {
+            if (error.statusCode === statusUnauthorized) {
+                router.push("/signin")
+                return
+            }
+            if (error.statusCode === statusBadRequest) {
+                toast("Comment cannot be empty", {
+                    action: {
+                        label: "Close"
+                    }
+                })
+                return
+            }
+            console.log(error)
+            toast("Failed to create comment, please try again later", {
+                action: {
+                    label: "Close"
+                }
+            })
         } else {
             console.log(error)
-            alert(unknownErrorMessage)
+            toast("Failed to create comment, please try again later", {
+                action: {
+                    label: "Close"
+                }
+            })
         }
+    } finally {
+        isLoading.value = false
     }
 }
 

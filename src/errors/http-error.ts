@@ -9,3 +9,4 @@ export class HttpError extends Error {
 export const statusInternalServerError = 500
 export const statusUnauthorized = 401
 export const statusNotFound = 404
+export const statusBadRequest = 400
