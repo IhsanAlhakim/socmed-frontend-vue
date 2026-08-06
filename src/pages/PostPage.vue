@@ -6,7 +6,6 @@ import Button from '@/components/Button.vue';
 import CommentItem from '@/components/CommentItem.vue';
 import { loggedInUserKey } from '@/config/injectionKeys';
 import { HttpError, statusBadRequest, statusInternalServerError, statusNotFound, statusUnauthorized } from '@/errors/http-error';
-import { unknownErrorMessage } from '@/errors/unknown-error';
 import type { Post } from '@/types/post';
 import type { PostComment } from '@/types/postComment';
 import { getPostCreatedDate } from '@/utils/date';

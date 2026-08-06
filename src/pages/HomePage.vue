@@ -2,7 +2,7 @@
 import { createPost, getPost } from '@/api/posts';
 import Button from '@/components/Button.vue';
 import PostItem from '@/components/PostItem.vue';
-import { HttpError, statusUnauthorized } from '@/errors/http-error';
+import { HttpError, statusBadRequest, statusInternalServerError, statusUnauthorized } from '@/errors/http-error';
 import type { Post } from '@/types/post';
 import { ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -29,11 +29,28 @@ async function createPostFormHandler() {
 
         postContent.value = ""
     } catch (error) {
-        if (error instanceof HttpError && error.statusCode === statusUnauthorized) {
-            router.push("/signin")
+        if (error instanceof HttpError && error.statusCode !== statusInternalServerError) {
+            if (error.statusCode === statusUnauthorized) {
+                router.push("/signin")
+                return
+            }
+            if (error.statusCode === statusBadRequest) {
+                toast("Post content cannot be empty", {
+                    action: {
+                        label: "Close"
+                    }
+                })
+                return
+            }
+            console.log(error)
+            toast("Failed to create comment, please try again later", {
+                action: {
+                    label: "Close"
+                }
+            })
         } else {
             console.log(error)
-            toast("Failed to create post, please try again later", {
+            toast("Failed to create comment, please try again later", {
                 action: {
                     label: "Close"
                 }
