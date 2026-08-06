@@ -14,6 +14,10 @@ export async function beforeEnterRoot(to: RouteLocationNormalizedGeneric, from: 
         }
 
         localStorage.setItem("userObj", JSON.stringify(getLoggedInUserResponse.response.data))
+        
+        if (to.path == "/") {
+            return {path: "/home"}
+        }
 
     } catch (error) {
         console.log(error)
