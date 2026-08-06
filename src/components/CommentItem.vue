@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { deletePostComment } from '@/api/comments';
-import { HttpError } from '@/errors/http-error';
+import { HttpError, statusUnauthorized } from '@/errors/http-error';
 import { unknownErrorMessage } from '@/errors/unknown-error';
 import type { PostComment } from '@/types/postComment';
 import { ref } from 'vue';
@@ -33,6 +33,7 @@ const router = useRouter()
 
 async function deleteCommentHandler(commentId: number) {
     try {
+        isLoading.value = true
         const deleteCommentResponse = await deletePostComment(commentId)
 
         if (!deleteCommentResponse.ok) {
@@ -45,13 +46,18 @@ async function deleteCommentHandler(commentId: number) {
         })
         isDeleteCommentDialogOpen.value = false
     } catch (error) {
-        if (error instanceof HttpError) {
-            alert(error.message)
+        if (error instanceof HttpError && error.statusCode === statusUnauthorized) {
+            router.push("/signin")
         } else {
             console.log(error)
-            alert(unknownErrorMessage)
+            toast("Failed to delete comment, please try again later", {
+                action: {
+                    label: "Close"
+                }
+            })
         }
-
+    } finally {
+        isLoading.value = false
     }
 }
 </script>
