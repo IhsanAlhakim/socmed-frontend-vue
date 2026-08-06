@@ -72,7 +72,7 @@ export async function getPostComments(postId: number): Promise<APIRequestFunctio
 
         if (!response.ok) {
             const errorResponse: string = await response.text()
-            throw new HttpError(errorResponse)
+            throw new HttpError(errorResponse, response.status)
         }
 
         const responseJSON: APIResponse = await response.json()
@@ -83,6 +83,13 @@ export async function getPostComments(postId: number): Promise<APIRequestFunctio
         }
         
     } catch (error) {
+        if (error instanceof HttpError) {
+            return {
+                ok: false,
+                error: error,
+                statusCode: error.statusCode
+            }
+        }
         return {
             ok: false,
             error: error

@@ -5,7 +5,7 @@ import { getPostById } from '@/api/posts';
 import Button from '@/components/Button.vue';
 import CommentItem from '@/components/CommentItem.vue';
 import { loggedInUserKey } from '@/config/injectionKeys';
-import { HttpError, statusUnauthorized } from '@/errors/http-error';
+import { HttpError, statusInternalServerError, statusNotFound, statusUnauthorized } from '@/errors/http-error';
 import { unknownErrorMessage } from '@/errors/unknown-error';
 import type { Post } from '@/types/post';
 import type { PostComment } from '@/types/postComment';
@@ -38,10 +38,6 @@ const isLoading = ref(false)
 
 
 async function getPostAndComments() {
-    if (!props.postId) {
-        return
-    }
-
     try {
         const [getPostResponse, getPostCommentsResponse] = await Promise.all([getPostById(postIdInt), getPostComments(postIdInt)])
 
@@ -63,11 +59,32 @@ async function getPostAndComments() {
         postLikes.value = PostData.liked
         postLikeCount.value = PostData.like_count
     } catch (error) {
-        if (error instanceof HttpError) {
-            alert(error.message)
+        if (error instanceof HttpError && error.statusCode !== statusInternalServerError) {
+            if (error.statusCode === statusUnauthorized) {
+                router.push("/signin")
+                return
+            }
+            if (error.statusCode === statusNotFound) {
+                toast("Post not found", {
+                    action: {
+                        label: "Close"
+                    }
+                })
+                return
+            }
+            console.log(error)
+            toast("Failed to load post page, please try again later", {
+                action: {
+                    label: "Close"
+                }
+            })
         } else {
             console.log(error)
-            alert(unknownErrorMessage)
+            toast("Failed to load post page, please try again later", {
+                action: {
+                    label: "Close"
+                }
+            })
         }
     }
 }
@@ -76,7 +93,7 @@ getPostAndComments()
 
 async function likeHandler() {
     if (!post.value) {
-        toast("Something wrong happened, please try again later", {
+        toast("Post unavailable", {
             action: {
                 label: "Close"
             }
